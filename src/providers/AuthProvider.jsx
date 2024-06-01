@@ -1,4 +1,4 @@
-import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import auth from "../utils/firebase.config";
 import Swal from "sweetalert2";
 import { createContext, useEffect, useState } from "react";
@@ -72,25 +72,25 @@ const AuthProvider = ({children}) => {
 				setUser(currentUser);
 				setLoading(false);
 
-				axios
-					.post(
-						"https://globalpalate-a11-server.vercel.app/jwt",
-						loggedUser,
-						{ withCredentials: true }
-					)
-					.then((res) => console.log("token response", res.data))
-					.catch((error) => console.error(error.message));
+				// axios
+				// 	.post(
+				// 		"https://globalpalate-a11-server.vercel.app/jwt",
+				// 		loggedUser,
+				// 		{ withCredentials: true }
+				// 	)
+				// 	.then((res) => console.log("token response", res.data))
+				// 	.catch((error) => console.error(error.message));
 			} else {
 				localStorage.removeItem("authUser");
 				setUser(null);
-				axios
-					.post(
-						`https://globalpalate-a11-server.vercel.app/logout`,
-						loggedUser,
-						{ withCredentials: true }
-					)
-					.then((res) => console.log(res.data))
-					.catch((error) => console.error(error.message));
+				// axios
+				// 	.post(
+				// 		`https://globalpalate-a11-server.vercel.app/logout`,
+				// 		loggedUser,
+				// 		{ withCredentials: true }
+				// 	)
+				// 	.then((res) => console.log(res.data))
+				// 	.catch((error) => console.error(error.message));
 			}
 			console.log("observing", currentUser);
 		});
@@ -102,14 +102,25 @@ const AuthProvider = ({children}) => {
 
 		await signOut(auth)
 			.then(() => {
-				toast.success("Successfully logged out");
+				Swal.fire({
+					position: "top-end",
+					icon: "success",
+					title: `You are successfully logged Out.`,
+					showConfirmButton: false,
+					timer: 1500,
+				});
 
 				localStorage.removeItem("authUser");
 				setUser(null);
 			})
 			.catch((error) => {
 				console.error(error);
-				toast.error("Failed to log out");
+				Swal.fire({
+					icon: "error",
+					title: "Oops...",
+					text: "Failed to Sign Out",
+					footer: `This happened because ${errorMessage}`,
+				});
 			});
 	};
 
