@@ -1,21 +1,55 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../providers/AuthProvider";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import img from "../../assets/logo.png";
+import Swal from "sweetalert2";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 
 const LoginPage = () => {
-    const { handleGoogleSignIn } = useContext(AuthContext);
+    const { handleGoogleSignIn, signInUser } = useContext(AuthContext);
+    const navigate = useNavigate()
+    const [showPassword, setShowPassword] = useState(false);
+	const location = useLocation();
+	const { from } = location.state || { from: { pathname: "/" } };
 
-	
+    const handleShowPassword = () => {
+		setShowPassword(!showPassword);
+	};
+
+    const handleSignIn = (e)=>{
+        e.preventDefault()
+        const form = e.target
+        const email = form.email.value
+        const password = form.password.value
+        signInUser(email,password)
+        .then(result=>{
+            Swal.fire({
+				position: "top-end",
+				icon: "success",
+				title: `You are successfully logged in.`,
+				showConfirmButton: false,
+				timer: 1500,
+			});
+            navigate(from, { replace: true });
+        })
+        .catch(error=>{
+            Swal.fire({
+				icon: "error",
+				title: "Oops...",
+				text: "Failed to Sign in",
+				footer: `This happened because ${error.message}`,
+			});
+        })
+    }
 	return (
 		<>
 			<Helmet>
 				<title>Morning Tribune | login</title>
 			</Helmet>
 			<div className="flex flex-col lg:flex-row items-center justify-between px-20 ">
-				<div className="hidden md:flex  justify-center h-96">
+				<div className="hidden lg:flex  justify-center h-96">
 					<img src={img} alt="" />
 				</div>
 				<div
@@ -56,7 +90,7 @@ const LoginPage = () => {
 						<p className="px-3 dark:text-gray-600">OR</p>
 						<hr className="w-full dark:text-gray-600" />
 					</div>
-					<form noValidate="" action="" className="space-y-8">
+					<form onSubmit={handleSignIn} className="space-y-8">
 						<div className="space-y-4">
 							<div className="space-y-2">
 								<label
@@ -89,21 +123,36 @@ const LoginPage = () => {
 										Forgot password?
 									</a>
 								</div>
-								<input
-									type="password"
-									name="password"
-									id="password"
-									placeholder="*****"
-									className="w-full px-3 py-2 border rounded-md dark:border-gray-300 dark:bg-gray-50 dark:text-gray-800 focus:dark:border-violet-600"
-								/>
+								<div className="relative">
+									<input
+										type={
+											showPassword ? "text" : "password"
+										}
+										name="password"
+										id="password"
+										placeholder="*****"
+										className="w-full px-3 py-2 border rounded-md border-green-300 text-gray-800 focus:border-green-800"
+									/>
+									<div
+										onClick={handleShowPassword}
+										className="absolute bottom-3 right-4"
+									>
+										{showPassword ? (
+											<FaEye />
+										) : (
+											<FaEyeSlash />
+										)}
+									</div>
+								</div>
 							</div>
 						</div>
-						<button
-							type="button"
-							className="w-full px-8 py-3 font-semibold rounded-md dark:bg-violet-600 dark:text-gray-50"
-						>
-							Sign in
-						</button>
+						<div>
+							<input
+								type="submit"
+								className="w-full btn px-8 py-3 font-semibold rounded-md"
+								value="Sign in"
+							/>
+						</div>
 					</form>
 				</div>
 			</div>

@@ -6,7 +6,6 @@ import axios from "axios";
 
 const Navbar = () => {
 	const { user, handleSignOut } = useContext(AuthContext);
-	console.log(handleSignOut);
 
 	const navlinkItems = [
 		{
@@ -21,15 +20,13 @@ const Navbar = () => {
 			name: "Premium Articles",
 			path: "/premiumarticles",
 		},
-
-
 		{
 			name: "Subscription",
 			path: "/subscription",
 		},
 		{
 			name: "Dashboard",
-			path: "/dashboard",
+			path: "/admin/dashboard",
 		},
 		{
 			name: "My Articles",
@@ -173,7 +170,7 @@ const Navbar = () => {
 								</li>
 								<li>
 									<Link
-										to="/dashboard"
+										to="admin/dashboard"
 										className="text-gray-800 transition-colors duration-300 relative group"
 									>
 										My Dashboard
