@@ -13,7 +13,6 @@ const tags = [
 
 const imageHostingKey = import.meta.env.VITE_imgbb_API;
 const imageHostingAPI = `https://api.imgbb.com/1/upload?key=${imageHostingKey}`
-console.log(imageHostingAPI);
 
 const AddArticlesPage = () => {
 	const { user } = useContext(AuthContext);
@@ -29,7 +28,7 @@ const AddArticlesPage = () => {
 				"Content-Type":"multipart/form-data"
 			}
 		});
-		console.log(res.data)
+		// console.log(res.data)
 		const name = form.name.value;
 		const image = res.data.data.display_url;
 		const publisher = form.publisher.value;
@@ -93,8 +92,6 @@ const AddArticlesPage = () => {
 			<section className="p-6 dark:bg-gray-100 dark:text-gray-900">
 				<form
 					onSubmit={handleSubmit}
-					noValidate=""
-					action=""
 					className="container flex flex-col mx-auto space-y-12"
 				>
 					<fieldset className="grid grid-cols-4 gap-6 p-6 rounded-md shadow-sm dark:bg-gray-50">

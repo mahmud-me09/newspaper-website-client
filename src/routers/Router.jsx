@@ -8,6 +8,9 @@ import Error from '../pages/errorPage/Error';
 import AddArticlesPage from '../pages/addArticles/AddArticlesPage';
 import PrivateRouter from "./PrivateRouter"
 import Dashboard from '../adminPages/Dashboard';
+import AllArticlesPage from '../adminPages/AllArticlesPage';
+import AllUsersPage from '../adminPages/AllUsersPage';
+import AddPublisher from '../adminPages/AddPublisher';
 
 const Router = () => {
     const router = createBrowserRouter([
@@ -46,6 +49,18 @@ const Router = () => {
 				{
 					path: "dashboard",
 					element: <Dashboard></Dashboard>,
+				},
+				{
+					path: "allarticles",
+					element: <AllArticlesPage></AllArticlesPage>,
+				},
+				{
+					path: "allusers",
+					element: <AllUsersPage></AllUsersPage>,
+				},
+				{
+					path: "addpublisher",
+					element: <AddPublisher></AddPublisher>,
 				},
 			],
 		},
