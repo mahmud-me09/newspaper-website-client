@@ -6,7 +6,7 @@ const AdminSideBar = () => {
 	return (
 		<div className=" p-3 space-y-2 w-72 h-screen bg-red-50">
 			<Link to="/admin/dashboard">
-				<div className="flex items-center p-2 space-x-4">
+				<div className="flex flex-col lg:flex-row items-center p-2 space-x-1 lg:space-x-4">
 					<img
 						src={user?.photoURL}
 						alt=""
@@ -22,6 +22,22 @@ const AdminSideBar = () => {
 			</Link>
 			<div className="divide-y dark:divide-gray-300">
 				<ul className="pt-2 pb-4 space-y-1 text-sm">
+					<li className="dark:bg-gray-100 dark:text-gray-900">
+						<Link
+							to="/"
+							className="flex items-center p-2 space-x-3 rounded-md"
+						>
+							<span>Home</span>
+						</Link>
+					</li>
+					<li className="dark:bg-gray-100 dark:text-gray-900">
+						<Link
+							to="/admin/dashboard"
+							className="flex items-center p-2 space-x-3 rounded-md"
+						>
+							<span>Admin Home</span>
+						</Link>
+					</li>
 					<li className="dark:bg-gray-100 dark:text-gray-900">
 						<Link
 							to="/admin/allusers"

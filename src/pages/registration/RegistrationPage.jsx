@@ -8,8 +8,11 @@ import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
 import Swal from "sweetalert2";
 import img from "../../assets/logo.png"
+import useAxiosPublic from "../../hooks/useAxiosPublic";
+import useImageHosting from "../../hooks/useImageHosting";
 
 const RegistrationPage = () => {
+	const axiosPublic = useAxiosPublic()
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { from } = location.state || { from: { pathname: "/" } };
@@ -30,36 +33,54 @@ const RegistrationPage = () => {
 	} = useForm();
 
 	const onSubmit = async (data) => {
+		const image = await useImageHosting(data.photoURL[0])
+		
 		createUser(data.email, data.password)
 			.then(async (userCredential) => {
 				const newUser = userCredential.user;
 				setUser({
 					...newUser,
 					displayName: data.Name,
-					photoURL: data.photoURL,
+					photoURL: image,
 				});
 				return await updateProfile(newUser, {
 					displayName: data.Name,
-					photoURL: data.photoURL,
+					photoURL: image,
 				});
 			})
 			.then(() => {
-				Swal.fire({
-					position: "top-end",
-					icon: "success",
-					title: `User Created Successfully`,
-					showConfirmButton: false,
-					timer: 1500,
-				});
-				setTimeout(() => navigate(from), 2000);
-				reset();
+				const userInfo = {
+					name: data.Name,
+					email: data.email,
+					photoURL:image,
+					isAdmin: false,
+					allowedFor: 1,
+					publishedArticles:0,
+					subscriptionHistory:[],
+				};
+				axiosPublic.post('/users',userInfo)
+				.then(res=>{
+					if(res.data.insertedId){
+						console.log("user Added to the Database")
+						Swal.fire({
+							position: "top-end",
+							icon: "success",
+							title: `User Created Successfully`,
+							showConfirmButton: false,
+							timer: 1500,
+						});
+						setTimeout(() => navigate(from), 2000);
+						reset();
+					}
+				})
+				
 			})
 			.catch((error) => {
 				Swal.fire({
 					icon: "error",
 					title: "Oops...",
-					text: "Failed to Sign Out",
-					footer: `This happened because ${errorMessage}`,
+					text: "Failed to Register",
+					footer: `This happened because ${error.message}`,
 				});
 			});
 	};
@@ -113,7 +134,7 @@ const RegistrationPage = () => {
 								</label>
 								<input
 									className="w-full px-3 py-2 border rounded-md dark:border-green-300 dark:bg-green-50 dark:text-green-800 focus:dark:border-green-600"
-									type="url"
+									type="file"
 									placeholder="Photo URL"
 									{...register("photoURL", {
 										required: "Photo URL is required",

@@ -1,48 +1,75 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { AuthContext } from "../../providers/AuthProvider";
 import axios from "axios";
 import Swal from "sweetalert2";
 import Select from "react-select";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const tags = [
-	{ value: "chocolate", label: "Chocolate" },
-	{ value: "strawberry", label: "Strawberry" },
-	{ value: "vanilla", label: "Vanilla" },
+	{ value: "politics", label: "Politics" },
+	{ value: "business", label: "Business" },
+	{ value: "sports", label: "Sports" },
+	{ value: "entertainment", label: "Entertainment" },
+	{ value: "technology", label: "Technology" },
+	{ value: "health", label: "Health" },
+	{ value: "environment", label: "Environment" },
+	{ value: "education", label: "Education" },
 ];
 
 const imageHostingKey = import.meta.env.VITE_imgbb_API;
-const imageHostingAPI = `https://api.imgbb.com/1/upload?key=${imageHostingKey}`
+const imageHostingAPI = `https://api.imgbb.com/1/upload?key=${imageHostingKey}`;
 
 const AddArticlesPage = () => {
 	const { user } = useContext(AuthContext);
-	const [selectedTags, setSelectedTags] = useState(null);
+	const [selectedTags, setSelectedTags] = useState([]);
+	const [publisherTags, setPublisherTags] = useState([]);
+	const [selectedPublisher, setSelectedPublisher] = useState("");
+	const axiosSecure = useAxiosSecure();
 
+	useEffect(() => {
+		axiosSecure
+			.get("/publisher")
+			.then((res) => {
+				const publishersArray = res.data;
+				const publishers = publishersArray.map((publisher) => ({
+					value: publisher.publisher,
+					label: publisher.publisher,
+				}));
+				setPublisherTags(publishers);
+			})
+			.catch((error) => console.log(error));
+	}, []);
 
-
-	const handleSubmit = async(event) => {
+	const handleSubmit = async (event) => {
 		event.preventDefault();
 		const form = event.target;
-		const res = await axios.post(imageHostingAPI, {image:form.image.files[0]},{
-			headers:{
-				"Content-Type":"multipart/form-data"
+		
+		const res = await axios.post(
+			imageHostingAPI,
+			{ image: form.image.files[0] },
+			{
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
 			}
-		});
-		// console.log(res.data)
+		);
 		const name = form.name.value;
 		const image = res.data.data.display_url;
-		const publisher = form.publisher.value;
-		const tags = selectedTags;
+		const publisher = selectedPublisher.value;
+		const tags = selectedTags.map((selectedTag) => selectedTag.value);
 		const description = form.description.value;
 		const isPremium = user.isPremium || false;
 		const viewCount = 0;
 		const isApproved = false;
+		const userEmail = user.email;
 		const formData = {
 			name,
 			image,
 			publisher,
 			tags,
 			description,
+			userEmail,
 			isPremium,
 			viewCount,
 			isApproved,
@@ -58,36 +85,29 @@ const AddArticlesPage = () => {
 		// 	});
 		// 	form.reset();
 		// }else{
-		// 	axios
-		// 		.post(
-		// 			"https://globalpalate-a11-server.vercel.app/foods",
-		// 			formData,
-		// 			{
-		// 				withCredentials: true,
-		// 			}
-		// 		)
-		// 		.then((res) => {
-		// 			console.log(res);
-		// 			if (res.data.insertedId) {
-		// 				Swal.fire({
-		// 					position: "top-end",
-		// 					icon: "success",
-		// 					title: `User Created Successfully`,
-		// 					showConfirmButton: false,
-		// 					timer: 1500,
-		// 				});
-		// 				form.reset();
-		// 			}
-		// 		})
-		// 		.catch((error) => console.log(error.message));
+		axiosSecure
+			.post("/articles", formData)
+			.then((res) => {
+				console.log(res);
+				if (res.data.insertedId) {
+					Swal.fire({
+						position: "top-end",
+						icon: "success",
+						title: `Article Created Successfully`,
+						showConfirmButton: false,
+						timer: 1500,
+					});
+					form.reset();
+				}
+			})
+			.catch((error) => console.log(error.message));
 		// }
 	};
-
 
 	return (
 		<div>
 			<Helmet>
-				<title>GlobalPalate | Add Food</title>
+				<title>Morning Tribune | Add Food</title>
 			</Helmet>
 			<section className="p-6 dark:bg-gray-100 dark:text-gray-900">
 				<form
@@ -126,13 +146,12 @@ const AddArticlesPage = () => {
 									>
 										Publisher:
 									</label>
-									<input
-										name="publisher"
-										type="text"
-										placeholder="Publisher Name"
-										defaultValue={user.displayName}
-										readOnly
-										className="w-full rounded-md p-4 border border-green-300"
+									<Select
+										defaultValue={selectedPublisher}
+										onChange={setSelectedPublisher}
+										options={publisherTags}
+										isMulti={false}
+										className="w-full p-2.5 rounded-md border border-green-300"
 									/>
 								</div>
 								<div className="col-span-full sm:col-span-3">
@@ -167,8 +186,9 @@ const AddArticlesPage = () => {
 							</div>
 							<div className="col-span-full  sm:col-span-3 my-4">
 								<label htmlFor="image" className="text-sm">
-									Image: 
-								</label><br />
+									Image:
+								</label>
+								<br />
 								<input
 									type="file"
 									name="image"

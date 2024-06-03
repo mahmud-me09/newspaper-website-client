@@ -1,12 +1,22 @@
-import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+	signInWithPopup,
+	GoogleAuthProvider,
+	onAuthStateChanged,
+	signOut,
+	signInWithEmailAndPassword,
+	createUserWithEmailAndPassword,
+} from "firebase/auth";
 import auth from "../utils/firebase.config";
 import Swal from "sweetalert2";
 import { createContext, useEffect, useState } from "react";
 import axios from "axios";
+import useAxiosPublic from "../hooks/useAxiosPublic";
 
 export const AuthContext = createContext(null);
-const AuthProvider = ({children}) => {
-    const [user, setUser] = useState(() => {
+
+const AuthProvider = ({ children }) => {
+	const axiosPublic = useAxiosPublic()
+	const [user, setUser] = useState(() => {
 		const savedUser = localStorage.getItem("authUser");
 		return savedUser ? JSON.parse(savedUser) : null;
 	});
@@ -14,12 +24,30 @@ const AuthProvider = ({children}) => {
 
 	const googleProvider = new GoogleAuthProvider();
 	const handleGoogleSignIn = () => {
+		setLoading(true);
 		signInWithPopup(auth, googleProvider)
 			.then((result) => {
 				const credential =
 					GoogleAuthProvider.credentialFromResult(result);
-				const token = credential.accessToken;
+
+				// const token = credential.accessToken;
 				const user = result.user;
+				const userInfo = {
+					name: user.displayName,
+					email: user.email,
+					photoURL: user.photoURL,
+					isAdmin: false,
+					allowedFor: 1,
+					publishedArticles: 0,
+					subscriptionHistory: [],
+				};
+				axiosPublic.post("/users", userInfo)
+				.then((res) => {
+					if (res.data.insertedId) {
+						console.log("user Added to the Database");
+					}
+				}).catch(error=>console.log(error));
+				setLoading(false);
 				Swal.fire({
 					position: "top-end",
 					icon: "success",
@@ -31,13 +59,12 @@ const AuthProvider = ({children}) => {
 			.catch((error) => {
 				const errorCode = error.code;
 				const errorMessage = error.message;
-				const email = error.customData.email;
+				// const email = error.customData.email;
 				const credential =
 					GoogleAuthProvider.credentialFromError(error);
 				console.log(
 					errorMessage,
 					errorCode,
-					email,
 					"credential Error",
 					credential
 				);
@@ -50,15 +77,13 @@ const AuthProvider = ({children}) => {
 			});
 	};
 
-    
-
 	const createUser = (email, password) => {
 		setLoading(true);
 		return createUserWithEmailAndPassword(auth, email, password);
 	};
 
 	const signInUser = (email, password) => {
-		setLoading(false);
+		setLoading(true);
 		return signInWithEmailAndPassword(auth, email, password);
 	};
 
@@ -124,7 +149,7 @@ const AuthProvider = ({children}) => {
 			});
 	};
 
-    const authInfo = {
+	const authInfo = {
 		handleGoogleSignIn,
 		user,
 		loading,
@@ -134,7 +159,9 @@ const AuthProvider = ({children}) => {
 		signInUser,
 		handleSignOut,
 	};
-	return <AuthContext.Provider value={authInfo} >{children}</AuthContext.Provider>
+	return (
+		<AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>
+	);
 };
 
 export default AuthProvider;

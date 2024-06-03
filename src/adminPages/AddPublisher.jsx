@@ -22,7 +22,7 @@ const AddPublisher = () => {
             publisherLogo
         }
         axiosSecure.post('/publisher', publisherInfo)
-        .then(res=>console.log(res))
+        .then(res=>console.log(res.data.insertedId))
         .catch(error=> console.log(error.message))
     }
     return (
