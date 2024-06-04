@@ -22,6 +22,53 @@ const AllArticlesPage = () => {
 		},
 	});
 
+	const handleDeleteButton = (id)=>{
+
+		const swalWithBootstrapButtons = Swal.mixin({
+			customClass: {
+				confirmButton: "btn gap-2 btn-error",
+				cancelButton: "btn gap-2 btn-success",
+			},
+			buttonsStyling: false,
+		});
+		swalWithBootstrapButtons
+			.fire({
+				title: "Are you sure?",
+				text: "You won't be able to revert this!",
+				icon: "warning",
+				showCancelButton: true,
+				confirmButtonText: "Yes, delete it!",
+				cancelButtonText: "No, cancel!",
+				reverseButtons: true,
+			})
+			.then((result) => {
+				if (result.isConfirmed) {
+					axiosSecure.delete(`/articles/${id}`).then((res) => {
+						if (res.data.deletedCount > 0) {
+							swalWithBootstrapButtons.fire({
+								title: "Deleted!",
+								text: "The Article has been deleted.",
+								icon: "success",
+							});
+							refetch()
+						}
+					});
+					
+				} else if (
+					/* Read more about handling dismissals below */
+					result.dismiss === Swal.DismissReason.cancel
+				) {
+					swalWithBootstrapButtons.fire({
+						title: "Cancelled",
+						text: "The Article is not deleted",
+						icon: "error",
+					});
+				}
+			});
+
+		
+	}
+
 
 	const handleApproveButton = (id) => {
 		axiosSecure
@@ -164,7 +211,12 @@ const AllArticlesPage = () => {
 									>
 										Decline
 									</button>
-									<button className="btn btn-error">
+									<button
+										onClick={() =>
+											handleDeleteButton(article._id)
+										}
+										className="btn btn-error"
+									>
 										Delete
 									</button>
 								</div>

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import useAxiosSecure from "../hooks/useAxiosSecure";
+import { useQuery } from "@tanstack/react-query";
 
 const AllUsersPage = () => {
+	const axiosSecure = useAxiosSecure();
 	const [isAdmin, setIsAdmin] = useState(false);
-	const [users, setUsers] = useState([]);
+	// const [users, setUsers] = useState([]);
 	const handleMakeAdmin = (id) => {
 		setIsAdmin(true);
 		axiosSecure.patch(`/users/${id}`,{isAdmin:true})
@@ -14,18 +16,29 @@ const AllUsersPage = () => {
 		})
 		.catch(error=>console.log(error.message))
 	};
-	const axiosSecure = useAxiosSecure();
+	
+	const {
+		data: users = [],
+		isLoading,
+		refetch,
+	} = useQuery({
+		queryKey: ["users"],
+		queryFn: async () => {
+			const res = await axiosSecure.get("/users");
+			return res.data;
+		},
+	});
 
-	useEffect(() => {
-		axiosSecure
-			.get("/users")
-			.then((res) => {
-				setUsers(res.data);
-				console.log(res.data);
-				setIsAdmin(res.data.isAdmin)
-			})
-			.catch((error) => console.log(error.message));
-	}, []);
+	// useEffect(() => {
+	// 	axiosSecure
+	// 		.get("/users")
+	// 		.then((res) => {
+	// 			setUsers(res.data);
+	// 			console.log(res.data);
+	// 			setIsAdmin(res.data.isAdmin)
+	// 		})
+	// 		.catch((error) => console.log(error.message));
+	// }, []);
 
 	return (
 		<div className="container p-2 mx-auto sm:p-4 dark:text-gray-800">
