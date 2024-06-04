@@ -4,7 +4,7 @@ import useAuth from "../hooks/useAuth";
 const AdminSideBar = () => {
 	const { handleSignOut, user } = useAuth();
 	return (
-		<div className=" p-3 space-y-2 w-72 h-screen bg-red-50">
+		<div className=" p-3 space-y-2 w-72 h-fit lg:h-screen bg-red-50">
 			<Link to="/admin/dashboard">
 				<div className="flex flex-col lg:flex-row items-center p-2 space-x-1 lg:space-x-4">
 					<img

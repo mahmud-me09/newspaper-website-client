@@ -15,6 +15,7 @@ import useAxiosPublic from "../hooks/useAxiosPublic";
 export const AuthContext = createContext(null);
 
 const AuthProvider = ({ children }) => {
+	
 	const axiosPublic = useAxiosPublic()
 	const [user, setUser] = useState(() => {
 		const savedUser = localStorage.getItem("authUser");
@@ -25,56 +26,8 @@ const AuthProvider = ({ children }) => {
 	const googleProvider = new GoogleAuthProvider();
 	const handleGoogleSignIn = () => {
 		setLoading(true);
-		signInWithPopup(auth, googleProvider)
-			.then((result) => {
-				const credential =
-					GoogleAuthProvider.credentialFromResult(result);
-
-				// const token = credential.accessToken;
-				const user = result.user;
-				const userInfo = {
-					name: user.displayName,
-					email: user.email,
-					photoURL: user.photoURL,
-					isAdmin: false,
-					allowedFor: 1,
-					publishedArticles: 0,
-					subscriptionHistory: [],
-				};
-				axiosPublic.post("/users", userInfo)
-				.then((res) => {
-					if (res.data.insertedId) {
-						console.log("user Added to the Database");
-					}
-				}).catch(error=>console.log(error));
-				setLoading(false);
-				Swal.fire({
-					position: "top-end",
-					icon: "success",
-					title: `Hi ${user.displayName}! You are logged in.`,
-					showConfirmButton: false,
-					timer: 1500,
-				});
-			})
-			.catch((error) => {
-				const errorCode = error.code;
-				const errorMessage = error.message;
-				// const email = error.customData.email;
-				const credential =
-					GoogleAuthProvider.credentialFromError(error);
-				console.log(
-					errorMessage,
-					errorCode,
-					"credential Error",
-					credential
-				);
-				Swal.fire({
-					icon: "error",
-					title: "Oops...",
-					text: "Something went wrong!",
-					footer: `This happened because ${errorMessage}`,
-				});
-			});
+		return signInWithPopup(auth, googleProvider)
+			
 	};
 
 	const createUser = (email, password) => {

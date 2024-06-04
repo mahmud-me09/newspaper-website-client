@@ -1,14 +1,16 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { AuthContext } from "../../providers/AuthProvider";
-import { useContext, useState } from "react";
+import {  useState } from "react";
 import { Helmet } from "react-helmet-async";
 import img from "../../assets/logo.png";
 import Swal from "sweetalert2";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
+import useAuth from "../../hooks/useAuth";
 
 
 const LoginPage = () => {
-    const { handleGoogleSignIn, signInUser } = useContext(AuthContext);
+    const { handleGoogleSignIn, signInUser, setLoading } = useAuth();
+	const axiosPublic = useAxiosPublic()
     const navigate = useNavigate()
     const [showPassword, setShowPassword] = useState(false);
 	const location = useLocation();
@@ -17,6 +19,53 @@ const LoginPage = () => {
     const handleShowPassword = () => {
 		setShowPassword(!showPassword);
 	};
+	const handleGoogleSignInWithRedirect = ()=>{
+		handleGoogleSignIn()
+			.then((result) => {
+				// const token = credential.accessToken;
+				const user = result.user;
+				const userInfo = {
+					name: user.displayName,
+					email: user.email,
+					photoURL: user.photoURL,
+					isAdmin: false,
+					allowedFor: 1,
+					publishedArticles: 0,
+					subscriptionHistory: [],
+				};
+				axiosPublic
+					.post("/users", userInfo)
+					.then((res) => {
+						if (res.data.insertedId) {
+							console.log("user Added to the Database");
+						}
+					})
+					.catch((error) => console.log(error));
+				setLoading(false);
+				Swal.fire({
+					position: "top-end",
+					icon: "success",
+					title: `Hi ${user.displayName}! You are logged in.`,
+					showConfirmButton: false,
+					timer: 1500,
+				});
+				navigate(from, { replace: true });
+			})
+			.catch((error) => {
+				const errorCode = error.code;
+				const errorMessage = error.message;				
+				console.log(
+					errorMessage,
+					errorCode,
+				);
+				Swal.fire({
+					icon: "error",
+					title: "Oops...",
+					text: "Something went wrong!",
+					footer: `This happened because ${errorMessage}`,
+				});
+			});
+	}
 
     const handleSignIn = (e)=>{
         e.preventDefault()
@@ -70,7 +119,7 @@ const LoginPage = () => {
 					</p>
 					<div className="my-6 space-y-4 border border-green-200">
 						<button
-							onClick={handleGoogleSignIn}
+							onClick={handleGoogleSignInWithRedirect}
 							aria-label="Login with Google"
 							type="button"
 							className="flex items-center justify-center w-full p-4 space-x-4 border rounded-md focus:ring-2 focus:ring-offset-1 dark:border-gray-600 focus:dark:ring-violet-600"

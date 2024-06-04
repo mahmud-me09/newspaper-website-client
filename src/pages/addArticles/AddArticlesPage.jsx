@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { AuthContext } from "../../providers/AuthProvider";
 import axios from "axios";
 import Swal from "sweetalert2";
 import Select from "react-select";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useAuth from "../../hooks/useAuth";
 
 const tags = [
 	{ value: "politics", label: "Politics" },
@@ -21,7 +21,7 @@ const imageHostingKey = import.meta.env.VITE_imgbb_API;
 const imageHostingAPI = `https://api.imgbb.com/1/upload?key=${imageHostingKey}`;
 
 const AddArticlesPage = () => {
-	const { user } = useContext(AuthContext);
+	const { user } = useAuth();
 	const [selectedTags, setSelectedTags] = useState([]);
 	const [publisherTags, setPublisherTags] = useState([]);
 	const [selectedPublisher, setSelectedPublisher] = useState("");
@@ -63,11 +63,14 @@ const AddArticlesPage = () => {
 		const viewCount = 0;
 		const isApproved = false;
 		const userEmail = user.email;
+		const createdAt = new Date()
 		const formData = {
 			name,
 			image,
 			publisher,
 			tags,
+			createdAt,
+			author:{name:user.displayName, photo:user.photoURL, email:user.email},
 			description,
 			userEmail,
 			isPremium,
