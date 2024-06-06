@@ -14,6 +14,7 @@ import AdminRoot from "../root/AdminRoot";
 import PublicRoot from "../root/PublicRoot";
 import PrivateRouter from "./PrivateRouter";
 import UpdateArticle from "../pages/updateArticle/UpdateArticle";
+import AdminRoute from "./AdminRoute"
 
 const Router = () => {
 	const router = createBrowserRouter([
@@ -66,7 +67,7 @@ const Router = () => {
 		},
 		{
 			path: "/admin/",
-			element: <AdminRoot></AdminRoot>,
+			element: <AdminRoute><AdminRoot></AdminRoot></AdminRoute>,
 			errorElement: <p>You are not authorized</p>,
 			children: [
 				{

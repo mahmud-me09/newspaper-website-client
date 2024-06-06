@@ -93,6 +93,7 @@ const AllArticlesPage = () => {
 		Swal.fire({
 			title: "Submit Your reason for declining",
 			input: "text",
+			inputValue: article?.adminMessage || "",
 			inputAttributes: {
 				autocapitalize: "off",
 			},
@@ -112,7 +113,7 @@ const AllArticlesPage = () => {
 						);
 						console.log(response);
 						if (!response.ok) {
-							refetch()
+							refetch();
 							return Swal.showValidationMessage(`
           ${JSON.stringify("successfully sent to Author")}
         `);
