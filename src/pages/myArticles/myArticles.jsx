@@ -1,16 +1,17 @@
-import React from 'react';
-import useAuth from '../../hooks/useAuth';
-import { useQuery } from '@tanstack/react-query';
-import useAxiosSecure from '../../hooks/useAxiosSecure';
-import SectionTitle from '../../components/SectionTitle';
-import { useNavigate } from 'react-router-dom';
-import SKeletonLoader from '../../components/SKeletonLoader';
+import React from "react";
+import useAuth from "../../hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
+import SectionTitle from "../../components/SectionTitle";
+import { useNavigate } from "react-router-dom";
+import SKeletonLoader from "../../components/SKeletonLoader";
+import Swal from "sweetalert2";
 
 const MyArticles = () => {
-    const {user} = useAuth()
-    const navigate = useNavigate()
-    const axiosSecure = useAxiosSecure()
-    const {
+	const { user } = useAuth();
+	const navigate = useNavigate();
+	const axiosSecure = useAxiosSecure();
+	const {
 		data: articles = [],
 		isLoading,
 		refetch,
@@ -22,7 +23,51 @@ const MyArticles = () => {
 		},
 	});
 
-    return (
+	const handleDeleteButton = (id) => {
+		const swalWithBootstrapButtons = Swal.mixin({
+			customClass: {
+				confirmButton: "btn gap-2 btn-error",
+				cancelButton: "btn gap-2 btn-success",
+			},
+			buttonsStyling: false,
+		});
+		swalWithBootstrapButtons
+			.fire({
+				title: "Are you sure?",
+				text: "You won't be able to revert this!",
+				icon: "warning",
+				showCancelButton: true,
+				confirmButtonText: "Yes, delete it!",
+				cancelButtonText: "No, cancel!",
+				reverseButtons: true,
+			})
+			.then((result) => {
+				if (result.isConfirmed) {
+					axiosSecure.delete(`/articles/${id}`).then((res) => {
+						if (res.data.deletedCount > 0) {
+							swalWithBootstrapButtons.fire({
+								title: "Deleted!",
+								text: "The Article has been deleted.",
+								icon: "success",
+							});
+							refetch();
+						}
+					});
+				} else if (
+					/* Read more about handling dismissals below */
+					result.dismiss === Swal.DismissReason.cancel
+				) {
+					swalWithBootstrapButtons.fire({
+						title: "Cancelled",
+						text: "The Article is not deleted",
+						icon: "error",
+					});
+				}
+			});
+	};
+
+
+	return (
 		<div className="container p-2 mx-auto sm:p-4 dark:text-gray-800">
 			<SectionTitle h1={"My Articles"} />
 			<div className="overflow-x-auto">
@@ -117,10 +162,17 @@ button,delete button */}
 										{article.isPremium ? "Yes" : "No"}
 									</td>
 									<td>
-										<button className="btn">Update</button>
+										<button onClick={()=>navigate("/updateArticle",{state:{article:article}})} className="btn">Update</button>
 									</td>
 									<td>
-										<button className="btn">Delete</button>
+										<button
+											onClick={() =>
+												handleDeleteButton(article._id)
+											}
+											className="btn btn-error"
+										>
+											Delete
+										</button>
 									</td>
 								</tr>
 							))}

@@ -13,6 +13,7 @@ import RegistrationPage from "../pages/registration/RegistrationPage";
 import AdminRoot from "../root/AdminRoot";
 import PublicRoot from "../root/PublicRoot";
 import PrivateRouter from "./PrivateRouter";
+import UpdateArticle from "../pages/updateArticle/UpdateArticle";
 
 const Router = () => {
 	const router = createBrowserRouter([
@@ -42,6 +43,14 @@ const Router = () => {
 					element: (
 						<PrivateRouter>
 							<AddArticlesPage></AddArticlesPage>
+						</PrivateRouter>
+					),
+				},
+				{
+					path: "updateArticle",
+					element: (
+						<PrivateRouter>
+							<UpdateArticle></UpdateArticle>
 						</PrivateRouter>
 					),
 				},
