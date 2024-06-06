@@ -1,19 +1,21 @@
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import PublicRoot from '../root/PublicRoot';
-import AdminRoot from '../root/AdminRoot';
-import Home from '../pages/home/Home';
-import LoginPage from '../pages/login/LoginPage';
-import RegistrationPage from '../pages/registration/RegistrationPage';
-import Error from '../pages/errorPage/Error';
-import AddArticlesPage from '../pages/addArticles/AddArticlesPage';
-import PrivateRouter from "./PrivateRouter"
-import Dashboard from '../adminPages/Dashboard';
-import AllArticlesPage from '../adminPages/AllArticlesPage';
-import AllUsersPage from '../adminPages/AllUsersPage';
-import AddPublisher from '../adminPages/AddPublisher';
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import AddPublisher from "../adminPages/AddPublisher";
+import AllArticlesPage from "../adminPages/AllArticlesPage";
+import AllUsersPage from "../adminPages/AllUsersPage";
+import Dashboard from "../adminPages/Dashboard";
+import AddArticlesPage from "../pages/addArticles/AddArticlesPage";
+import DetailArticlePage from "../pages/detailArticle/DetailArticlePage";
+import Error from "../pages/errorPage/Error";
+import Home from "../pages/home/Home";
+import LoginPage from "../pages/login/LoginPage";
+import MyArticles from "../pages/myArticles/MyArticles";
+import RegistrationPage from "../pages/registration/RegistrationPage";
+import AdminRoot from "../root/AdminRoot";
+import PublicRoot from "../root/PublicRoot";
+import PrivateRouter from "./PrivateRouter";
 
 const Router = () => {
-    const router = createBrowserRouter([
+	const router = createBrowserRouter([
 		{
 			path: "/",
 			element: <PublicRoot></PublicRoot>,
@@ -32,10 +34,22 @@ const Router = () => {
 					element: <RegistrationPage></RegistrationPage>,
 				},
 				{
+					path: "articles/:id",
+					element: <DetailArticlePage></DetailArticlePage>,
+				},
+				{
 					path: "addArticle",
 					element: (
 						<PrivateRouter>
 							<AddArticlesPage></AddArticlesPage>
+						</PrivateRouter>
+					),
+				},
+				{
+					path: "myarticles",
+					element: (
+						<PrivateRouter>
+							<MyArticles></MyArticles>
 						</PrivateRouter>
 					),
 				},
@@ -65,7 +79,7 @@ const Router = () => {
 			],
 		},
 	]);
-    return <RouterProvider router={router} />;
+	return <RouterProvider router={router} />;
 };
 
 export default Router;

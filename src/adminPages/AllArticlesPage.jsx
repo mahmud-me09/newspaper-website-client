@@ -114,6 +114,7 @@ const AllArticlesPage = () => {
 						);
 						console.log(response);
 						if (!response.ok) {
+							refetch()
 							return Swal.showValidationMessage(`
           ${JSON.stringify("successfully sent to Author")}
         `);
@@ -191,11 +192,12 @@ const AllArticlesPage = () => {
 										? article?.isPremium
 											? "Approved & Premium"
 											: "Approved & Non-Premium"
-										: "Unapproved"}
+										: "Pending"}
 								</p>
 								<p>Publisher: {article?.publisher}</p>
 								<div className="card-actions flex flex-nowrap gap-4 w-full justify-between">
 									<button
+										disabled={article?.adminMessage}
 										onClick={() =>
 											handleApproveButton(article._id)
 										}
@@ -222,6 +224,7 @@ const AllArticlesPage = () => {
 								</div>
 								<div className="card-actions w-full py-2">
 									<button
+										disabled={article?.adminMessage}
 										onClick={() =>
 											handlePremiumButton(article._id)
 										}
