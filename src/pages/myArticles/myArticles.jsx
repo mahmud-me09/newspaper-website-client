@@ -133,24 +133,34 @@ button,delete button */}
 											Details
 										</button>
 									</td>
-									<td
-										className={`p-3 ${
-											article.adminMessage
-												? "text-red-600"
+									<td>
+										<button
+											disabled={!article.adminMessage}
+											onClick={() => {
+												Swal.fire({
+													title: "Admin Message",
+													text: article?.adminMessage,
+													icon: "error",
+												});
+											}}
+											className={`p-3 ${
+												article.adminMessage
+													? "text-red-600 btn"
+													: article?.isApproved
+													? article?.isPremium
+														? "text-blue-500"
+														: "text-green-400"
+													: "text-yellow-500"
+											}`}
+										>
+											{article.adminMessage
+												? "Declined"
 												: article?.isApproved
 												? article?.isPremium
-													? "text-blue-500"
-													: "text-green-400"
-												: "text-yellow-500"
-										}`}
-									>
-										{article.adminMessage
-											? "Declined"
-											: article?.isApproved
-											? article?.isPremium
-												? "Approved & Premium"
-												: "Approved & Non-Premium"
-											: "Pending"}
+													? "Approved & Premium"
+													: "Approved & Non-Premium"
+												: "Pending"}
+										</button>
 									</td>
 									<td
 										className={`p-3 ${
@@ -162,7 +172,16 @@ button,delete button */}
 										{article.isPremium ? "Yes" : "No"}
 									</td>
 									<td>
-										<button onClick={()=>navigate("/updateArticle",{state:{article:article}})} className="btn">Update</button>
+										<button
+											onClick={() =>
+												navigate("/updateArticle", {
+													state: { article: article },
+												})
+											}
+											className="btn"
+										>
+											Update
+										</button>
 									</td>
 									<td>
 										<button
