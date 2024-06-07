@@ -1,9 +1,7 @@
 import { useParams } from 'react-router-dom';
-import useAxiosSecure from '../../hooks/useAxiosSecure';
 import { useQuery } from '@tanstack/react-query';
 import SKeletonLoader from '../../components/SKeletonLoader';
 import useAxiosPublic from '../../hooks/useAxiosPublic';
-import { useEffect } from 'react';
 
 const DetailArticlePage = () => {
 	const { id } = useParams();
@@ -36,15 +34,15 @@ const DetailArticlePage = () => {
 						<div className="flex items-center gap-2">
 							<img
 								className="w-12 h-12 rounded-full"
-								src={article.author.photo}
+								src={article?.author?.photo}
 								alt=""
 							/>
 							<div>
-								<p>Author: {article.author.name}</p>
-								<p>contact: {article.author.email}</p>
+								<p>Author: {article?.author?.name}</p>
+								<p>contact: {article?.author?.email}</p>
 							</div>
 						</div>
-						<p>Published Date: {article.createdAt.split("T")[0]}</p>
+						<p>Published Date: {article?.createdAt?.split("T")[0]}</p>
 					</div>
 					<div className="my-4">
 						<img
@@ -57,7 +55,7 @@ const DetailArticlePage = () => {
 						</p>
 					</div>
 					<div>
-						<p>{article.description}</p>
+						<p>{article?.description}</p>
 					</div>
 				</>
 			)}

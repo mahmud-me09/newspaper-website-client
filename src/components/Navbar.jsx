@@ -1,49 +1,104 @@
-import DateToday from "./DateToday";
+import React, { useContext } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { useContext, useState } from "react";
-import { AuthContext } from "../providers/AuthProvider";
-import axios from "axios";
+import useAdmin from "../hooks/useAdmin";
+import DateToday from "../components/DateToday";
+import { useQuery } from "@tanstack/react-query";
+import useAuth from "../hooks/useAuth";
+import usePremium from "../hooks/usePremium";
 
 const Navbar = () => {
-	const { user, handleSignOut } = useContext(AuthContext);
+	const { user, handleSignOut } = useAuth();
+	
+	const [isAdmin, isAdminLoading] = useAdmin();
+	const [isPremium,isPremiumLoading] = usePremium()
 
 	const navlinkItems = [
 		{
 			name: "Home",
 			path: "/",
+			access: "public",
 		},
 		{
 			name: "All Articles",
-			path: "/articles",
+			path: "/allpublishedarticles",
+			access: "public",
 		},
 		{
 			name: "Premium Articles",
 			path: "/premiumarticles",
+			access: "premium",
 		},
 		{
 			name: "Subscription",
 			path: "/subscription",
+			access: "authenticated",
 		},
 		{
 			name: "Dashboard",
 			path: "/admin/dashboard",
+			access: "admin",
 		},
 		{
 			name: "My Articles",
 			path: "/myarticles",
+			access: "authenticated",
 		},
 	];
 
+	const renderNavLinks = () => {
+		// if (isPremiumLoading || isAdminLoading) {
+		// 	return (
+		// 		<li className="font-normal relative group">
+		// 			<NavLink
+		// 				className="loading ml-4 flex items-center gap-2 justify-center relative"
+		// 				to="#"
+		// 			>
+		// 				Loading...
+		// 			</NavLink>
+		// 		</li>
+		// 	);
+		// }
+
+		return navlinkItems.map((navlink) => {
+			
+
+			const showLink =
+				navlink.access === "public" ||
+				(user && navlink.access === "authenticated") ||
+				(isPremium && navlink.access === "premium") ||
+				(isAdmin && navlink.access === "admin");
+
+			return showLink ? (
+				<li className="font-normal relative group" key={navlink.name}>
+					<NavLink
+						className={({ isActive }) =>
+							isActive
+								? "scale-105 font-bold ml-4 flex items-center gap-2 justify-center relative"
+								: "hover:scale-105 hover:font-bold ml-4 gap-2 flex items-center justify-center relative"
+						}
+						to={navlink.path}
+					>
+						{navlink.name}
+						{/* Underline animation */}
+						<span className="absolute left-0 right-0 bottom-0 w-full bg-red-700 h-0.5 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300" />
+					</NavLink>
+				</li>
+			) : null;
+		});
+	};
+
 	return (
 		<div>
-			<div className=" text-center py-4 border-b-4 border-double ">
-				<h3 className="text-3xl font-bold text-poppins text-red-700 italic">
-					The
-				</h3>
-				<h1 className="text-3xl font-oldStandardTT italic uppercase font-bold">
-					Morning Tribune
-				</h1>
-				<DateToday></DateToday>
+			<div className="text-center py-4 border-b-4 border-double">
+				<Link to="/">
+					<h3 className="text-3xl font-bold text-poppins text-red-700 italic">
+						The
+					</h3>
+					<h1 className="text-3xl font-oldStandardTT italic uppercase font-bold">
+						Morning Tribune
+					</h1>
+				</Link>
+				<DateToday />
 			</div>
 			{/* Navlinks */}
 			<div className="navbar z-20 border-b-4 border-double sticky top-0">
@@ -73,48 +128,13 @@ const Navbar = () => {
 							tabIndex={0}
 							className="menu menu-sm gap-2 dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
 						>
-							{navlinkItems.map((navlink) => (
-								<li
-									key={navlink.name}
-									className="relative group"
-								>
-									<NavLink
-										to={navlink.path}
-										className={({ isActive }) =>
-											isActive
-												? "text-red-700 bg-gray-100 border-b border-red-700"
-												: "text-gray-800 transition-colors duration-300 group-hover:text-red-700"
-										}
-									>
-										{navlink.name}
-										<span className="absolute left-0 right-0 bottom-0 w-full bg-red-700 h-0.5 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300" />
-									</NavLink>
-								</li>
-							))}
+							{renderNavLinks()}
 						</ul>
 					</div>
 				</div>
 				<div className="navbar-center hidden lg:flex">
 					<ul className="flex flex-row gap-2 px-2">
-						{navlinkItems.map((navlink) => (
-							<li
-								className="font-normal relative group"
-								key={navlink.name}
-							>
-								<NavLink
-									className={({ isActive }) =>
-										isActive
-											? "scale-105 font-bold ml-4 flex items-center gap-2 justify-center relative"
-											: "hover:scale-105 hover:font-bold ml-4 gap-2 flex items-center justify-center relative"
-									}
-									to={navlink.path}
-								>
-									{navlink.name}
-									{/* Underline animation */}
-									<span className="absolute left-0 right-0 bottom-0 w-full bg-red-700 h-0.5 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300" />
-								</NavLink>
-							</li>
-						))}
+						{renderNavLinks()}
 					</ul>
 				</div>
 				<div className="navbar-end pr-10">
@@ -133,7 +153,6 @@ const Navbar = () => {
 									/>
 								</div>
 							</div>
-
 							<ul
 								tabIndex={0}
 								className="menu menu-sm dropdown-content mt-3 z-50 p-2 shadow bg-base-100 rounded-box w-52 relative"
@@ -170,14 +189,26 @@ const Navbar = () => {
 								</li>
 								<li>
 									<Link
-										to="admin/dashboard"
+										to="/myprofile"
 										className="text-gray-800 transition-colors duration-300 relative group"
 									>
-										My Dashboard
+										My Profile
 										{/* Underline animation */}
 										<span className="absolute left-0 right-0 bottom-0 h-0.5 bg-red-700 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300" />
 									</Link>
 								</li>
+								{isAdmin && (
+									<li>
+										<Link
+											to="/admin/dashboard"
+											className="text-gray-800 transition-colors duration-300 relative group"
+										>
+											My Dashboard
+											{/* Underline animation */}
+											<span className="absolute left-0 right-0 bottom-0 h-0.5 bg-red-700 transform scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300" />
+										</Link>
+									</li>
+								)}
 								<li>
 									<button
 										onClick={handleSignOut}

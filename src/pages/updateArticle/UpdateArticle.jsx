@@ -130,7 +130,15 @@ const UpdateArticle = () => {
 						timer: 1500,
 					});
 					form.reset();
-				}
+				} else if (res.data.matchedCount>0 && res.data.modifiedCount ==0){
+                    Swal.fire({
+						position: "top-end",
+						icon: "error",
+						title: `Article is not modified`,
+						showConfirmButton: false,
+						timer: 1500,
+					});
+                }
 			})
 			.catch((error) => console.log(error.message));
 	};

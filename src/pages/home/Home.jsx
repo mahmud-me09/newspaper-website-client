@@ -1,13 +1,20 @@
-import SectionTitle from "../../components/SectionTitle";
+import AllPublishersSection from "./AllPublishersSection";
+import StatisticsSection from "./StatisticsSection";
+import SubscriptionPlanSection from "./SubscriptionPlanSection";
+import TrendingArticles from "./TrendingArticles";
+
 
 
 const Home = () => {
-    return (
-        <div>
-            <p className="text-2xl">This is home</p>
-            <SectionTitle h1={"Hello"}/>
-        </div>
-    );
+	return (
+		<div>
+			<TrendingArticles />
+			<AllPublishersSection />
+			<StatisticsSection />
+			<SubscriptionPlanSection />
+
+		</div>
+	);
 };
 
 export default Home;

@@ -15,6 +15,10 @@ import PublicRoot from "../root/PublicRoot";
 import PrivateRouter from "./PrivateRouter";
 import UpdateArticle from "../pages/updateArticle/UpdateArticle";
 import AdminRoute from "./AdminRoute"
+import AllApprovedArticles from "../pages/allApprovedArticles/AllApprovedArticles";
+import PremiumArticles from "../pages/premiumArticles/PremiumArticles";
+import MyProfile from "../pages/myProfile/MyProfile";
+import Subscription from "../pages/subscription/Subscription";
 
 const Router = () => {
 	const router = createBrowserRouter([
@@ -34,6 +38,10 @@ const Router = () => {
 				{
 					path: "register",
 					element: <RegistrationPage></RegistrationPage>,
+				},
+				{
+					path: "allpublishedarticles",
+					element: <AllApprovedArticles></AllApprovedArticles>,
 				},
 				{
 					path: "articles/:id",
@@ -63,11 +71,39 @@ const Router = () => {
 						</PrivateRouter>
 					),
 				},
+				{
+					path: "premiumarticles",
+					element: (
+						<PrivateRouter>
+							<PremiumArticles></PremiumArticles>
+						</PrivateRouter>
+					),
+				},
+				{
+					path: "myprofile",
+					element: (
+						<PrivateRouter>
+							<MyProfile></MyProfile>
+						</PrivateRouter>
+					),
+				},
+				{
+					path: "subscription",
+					element: (
+						<PrivateRouter>
+							<Subscription></Subscription>
+						</PrivateRouter>
+					),
+				},
 			],
 		},
 		{
 			path: "/admin/",
-			element: <AdminRoute><AdminRoot></AdminRoot></AdminRoute>,
+			element: (
+				<AdminRoute>
+					<AdminRoot></AdminRoot>
+				</AdminRoute>
+			),
 			errorElement: <p>You are not authorized</p>,
 			children: [
 				{

@@ -1,5 +1,4 @@
-
-import useAuth from "../hooks/useAuth";
+import React from "react";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import SectionTitle from "../components/SectionTitle";
 import Swal from "sweetalert2";
@@ -7,7 +6,6 @@ import { useQuery } from "@tanstack/react-query";
 import SkeletonLoader from "../components/SKeletonLoader"
 
 const AllArticlesPage = () => {
-	const { user } = useAuth();
 	const axiosSecure = useAxiosSecure();
 
 	const {
@@ -15,7 +13,7 @@ const AllArticlesPage = () => {
 		isLoading,
 		refetch,
 	} = useQuery({
-		queryKey: ["articles"],
+		queryKey: ["articles", "all"],
 		queryFn: async () => {
 			const res = await axiosSecure.get("/articles");
 			return res.data;
@@ -136,6 +134,27 @@ const AllArticlesPage = () => {
 		});
 	};
 
+	// pagination
+
+	const [page, setPage] = React.useState(1);
+	const pageSize = 3;
+
+	const startIndex = (page - 1) * pageSize;
+	const visibleArticles = articles.slice(startIndex, startIndex + pageSize);
+
+	const totalPages = Math.ceil(articles.length / pageSize);
+
+	const goToPage = (pageNumber) => {
+		setPage(pageNumber);
+	};
+	const goToPreviousPage = () => {
+        setPage((prevPage) => Math.max(prevPage - 1, 1));
+    };
+
+    const goToNextPage = () => {
+        setPage((prevPage) => Math.min(prevPage + 1, totalPages));
+    };
+
 	return (
 		<>
 			<div className="py-4 mr-8">
@@ -145,7 +164,7 @@ const AllArticlesPage = () => {
 				<SkeletonLoader></SkeletonLoader>
 			) : (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{articles.map((article) => (
+					{visibleArticles.map((article) => (
 						<div
 							key={article._id}
 							className="card max-w-96 border bg-base-100 shadow-xl"
@@ -237,6 +256,33 @@ const AllArticlesPage = () => {
 					))}
 				</div>
 			)}
+			<div className="flex justify-center mt-4">
+				<nav className="pagination">
+					<ul className="flex gap-2">
+						<li
+							onClick={goToPreviousPage}
+							className="btn"
+						>{`<<`}</li>
+						{[...Array(totalPages).keys()].map((pageNumber) => (
+							<li
+								key={pageNumber}
+							>
+								<button
+									className={`page-link btn ${
+										pageNumber + 1 === page
+											? "bg-blue-500 text-white"
+											: ""
+									}`}
+									onClick={() => goToPage(pageNumber + 1)}
+								>
+									{pageNumber + 1}
+								</button>
+							</li>
+						))}
+						<li onClick={goToNextPage} className="btn">{`>>`}</li>
+					</ul>
+				</nav>
+			</div>
 		</>
 	);
 };
