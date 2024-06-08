@@ -1,14 +1,14 @@
 import { useForm } from "react-hook-form";
 import { Helmet } from "react-helmet-async";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { updateProfile } from "firebase/auth";
-import { AuthContext } from "../../providers/AuthProvider";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Swal from "sweetalert2";
 import img from "../../assets/logo.png";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import useImageHosting from "../../hooks/useImageHosting";
+import useAuth from "../../hooks/useAuth";
 
 const RegistrationPage = () => {
 	const axiosPublic = useAxiosPublic();
@@ -18,7 +18,7 @@ const RegistrationPage = () => {
 
 	const [showPassword, setShowPassword] = useState(false);
 
-	const { createUser, setUser } = useContext(AuthContext);
+	const { createUser, setUser } = useAuth();
 	const imageHosting = useImageHosting
 
 	const handleShowPassword = () => {

@@ -19,6 +19,8 @@ import AllApprovedArticles from "../pages/allApprovedArticles/AllApprovedArticle
 import PremiumArticles from "../pages/premiumArticles/PremiumArticles";
 import MyProfile from "../pages/myProfile/MyProfile";
 import Subscription from "../pages/subscription/Subscription";
+import ProfilePage from "../pages/profilePage/ProfilePage";
+import PaymentPage from "../pages/subscription/PaymentPage";
 
 const Router = () => {
 	const router = createBrowserRouter([
@@ -95,6 +97,15 @@ const Router = () => {
 						</PrivateRouter>
 					),
 				},
+				{
+					path: "payment",
+					element: (
+						<PrivateRouter>
+							<PaymentPage></PaymentPage>
+						</PrivateRouter>
+					),
+				},
+				
 			],
 		},
 		{

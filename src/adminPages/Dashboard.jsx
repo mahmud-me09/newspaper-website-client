@@ -22,7 +22,7 @@ const Dashboard = () => {
 			queryKey: ["publisherArticles"],
 			queryFn: async () => {
 				const response = await axiosSecure.get(
-					"http://localhost:5000/publisher/articles/count"
+					"/publisher/articles/count"
 				);
 				return response.data;
 			},
