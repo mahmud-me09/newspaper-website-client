@@ -48,7 +48,6 @@ const UpdateArticle = () => {
 		}))
 	);
 	console.log(selectedTags);
-	// const [publisherTags, setPublisherTags] = useState([]);
 	const [selectedPublisher, setSelectedPublisher] = useState({
 		value: article.publisher,
 		label: article.publisher,
@@ -114,12 +113,10 @@ const UpdateArticle = () => {
 			viewCount,
 			isApproved,
 		};
-		console.log(formData);
 
 		axiosSecure
 			.put(`/articles/${article._id}`, formData)
 			.then((res) => {
-				console.log(res);
 				if (res.data.modifiedCount) {
                     refetch()
 					Swal.fire({

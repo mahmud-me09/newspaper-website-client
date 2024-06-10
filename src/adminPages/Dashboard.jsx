@@ -28,6 +28,15 @@ const Dashboard = () => {
 			},
 		});
 
+	const { data: publisherViewCount = [], isLoading: viewCountLoading } =
+		useQuery({
+			queryKey: ["publisherViewCount"],
+			queryFn: async () => {
+				const response = await axiosSecure.get("/publisher/viewcount");
+				return response.data;
+			},
+		});
+
 	// Calculate percentages for pie chart
 	const calculatePieChartData = () => {
 		if (publisherArticles.length === 0) {
@@ -47,7 +56,22 @@ const Dashboard = () => {
 
 		return data;
 	};
-	console.log("all Articles", articles);
+
+	const calculateLineChartData = () => {
+		if (publisherViewCount.length === 0) {
+			return [["Publisher", "View Count"]];
+		}
+
+		const data = [["Publisher", "View Count"]];
+
+		publisherViewCount.forEach((item) => {
+			data.push([item._id, item.totalViewCount]);
+		});
+
+		return data;
+	};
+
+	console.log("All Articles", articles);
 
 	return (
 		<div className="container mx-auto mt-8">
@@ -72,61 +96,56 @@ const Dashboard = () => {
 				/>
 			</div>
 
-			{/* Static Charts - Example: Bar Chart and Line Chart */}
-			<div className="grid grid-cols-2 gap-8">
-				<div>
-					<h2 className="text-lg font-semibold mb-2">
-						Bar Chart: Example
+			<div className="grid grid-cols-1 gap-8">
+				<div className="mb-8">
+					<h2 className="text-lg text-center font-semibold mb-2">
+						Line Chart: Publisher vs View Count
 					</h2>
+					{/* Line Chart: Publisher vs View Count */}
 					<Chart
-						chartType="BarChart"
+						chartType="LineChart"
 						loader={<div>Loading Chart...</div>}
-						data={[
-							["City", "2010 Population", "2000 Population"],
-							["New York City, NY", 8175000, 8008000],
-							["Los Angeles, CA", 3792000, 3694000],
-							["Chicago, IL", 2695000, 2896000],
-							["Houston, TX", 2099000, 1953000],
-							["Philadelphia, PA", 1526000, 1517000],
-						]}
+						data={calculateLineChartData()}
 						options={{
-							title: "Population of Largest U.S. Cities",
-							chartArea: { width: "50%" },
-							hAxis: {
-								title: "Total Population",
-								minValue: 0,
-							},
-							vAxis: {
-								title: "City",
-							},
+							title: "Publisher vs View Count",
+							hAxis: { title: "Publisher" },
+							vAxis: { title: "View Count" },
 						}}
-						rootProps={{ "data-testid": "2" }}
+						rootProps={{ "data-testid": "3" }}
 					/>
 				</div>
-				<Chart
-					chartType="ColumnChart"
-					loader={<div>Loading Chart...</div>}
-					data={[
-						["Type", "Count"],
-						[
-							"Premium Articles",
-							articles.filter((article) => article.isPremium)
-								.length,
-						],
-						[
-							"Non-Premium Articles",
-							articles.filter((article) => !article.isPremium)
-								.length,
-						],
-					]}
-					options={{
-						title: "Premium vs. Non-Premium Articles",
-						chartArea: { width: "60%", height: "70%" },
-						hAxis: { title: "premium and non-premium articles" },
-						vAxis: { title: "Number of Articles" },
-					}}
-					rootProps={{ "data-testid": "5" }}
-				/>
+				<div className="mb-8">
+					<h2 className="text-lg text-center font-semibold mb-2">
+						Bar Chart: Premium and Non-Premium Vs Number of Articles
+					</h2>
+					{/* premium vs non-premium */}
+					<Chart
+						chartType="ColumnChart"
+						loader={<div>Loading Chart...</div>}
+						data={[
+							["Type", "Count"],
+							[
+								"Premium Articles",
+								articles.filter((article) => article.isPremium)
+									.length,
+							],
+							[
+								"Non-Premium Articles",
+								articles.filter((article) => !article.isPremium)
+									.length,
+							],
+						]}
+						options={{
+							title: "Premium vs. Non-Premium Articles",
+							chartArea: { width: "60%", height: "70%" },
+							hAxis: {
+								title: "premium and non-premium articles",
+							},
+							vAxis: { title: "Number of Articles" },
+						}}
+						rootProps={{ "data-testid": "5" }}
+					/>
+				</div>
 			</div>
 		</div>
 	);
