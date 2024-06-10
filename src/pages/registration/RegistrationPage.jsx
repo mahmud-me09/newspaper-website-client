@@ -19,7 +19,7 @@ const RegistrationPage = () => {
 	const [showPassword, setShowPassword] = useState(false);
 
 	const { createUser, setUser } = useAuth();
-	const imageHosting = useImageHosting
+	const imageHosting = useImageHosting;
 
 	const handleShowPassword = () => {
 		setShowPassword(!showPassword);
@@ -58,7 +58,7 @@ const RegistrationPage = () => {
 			};
 
 			const response = await axiosPublic.post("/users", userInfo);
-			console.log(response)
+			console.log(response);
 			if (response.data.insertedId) {
 				Swal.fire({
 					position: "top-end",

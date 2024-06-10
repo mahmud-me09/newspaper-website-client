@@ -9,22 +9,21 @@ import {
 import auth from "../utils/firebase.config";
 import Swal from "sweetalert2";
 import { createContext, useEffect, useState } from "react";
+// import useAxiosSecure from "../hooks/useAxiosSecure";
 import useAxiosPublic from "../hooks/useAxiosPublic";
-import useAxiosSecure from "../hooks/useAxiosSecure";
-
 
 export const AuthContext = createContext(null);
 
 const AuthProvider = ({ children }) => {
 	const [isAdmin, setIsAdmin] = useState(false);
-	const [isPremium, setIsPremium] = useState(false)
+	const [isPremium, setIsPremium] = useState(false);
+	// const axiosSecure = useAxiosSecure();
 	const axiosPublic = useAxiosPublic();
-	const axiosSecure = useAxiosSecure()
 	const [user, setUser] = useState(() => {
 		const savedUser = localStorage.getItem("authUser");
 		return savedUser ? JSON.parse(savedUser) : null;
 	});
-	const [dbUser,setDbUser] = useState(null)
+	const [dbUser, setDbUser] = useState(null);
 	const [loading, setLoading] = useState(true);
 
 	const googleProvider = new GoogleAuthProvider();
@@ -48,9 +47,9 @@ const AuthProvider = ({ children }) => {
 			axiosPublic
 				.get(`/users?email=${user.email}`)
 				.then((response) => {
-					setIsAdmin(response.data.isAdmin)
-					setIsPremium(response.data?.isPremium)
-					setDbUser(response.data)
+					setIsAdmin(response.data.isAdmin);
+					setIsPremium(response.data?.isPremium);
+					setDbUser(response.data);
 				})
 				.catch((error) => {
 					console.error("Failed to fetch user data", error);
@@ -69,8 +68,8 @@ const AuthProvider = ({ children }) => {
 				);
 				return;
 			}
-			if(!dbUser.subscriptionHistory?.expiredDate){
-				return
+			if (!dbUser.subscriptionHistory?.expiredDate) {
+				return;
 			}
 
 			const currentDate = new Date();
@@ -80,7 +79,7 @@ const AuthProvider = ({ children }) => {
 
 			if (currentDate > expiredDate) {
 				// If subscription expired, update premium status to false
-				const res = await axiosSecure.put(
+				const res = await axiosPublic.put(
 					`/payment?email=${currentUser.email}`,
 					{
 						isPremium: false,
@@ -90,7 +89,7 @@ const AuthProvider = ({ children }) => {
 				setIsPremium(false);
 			} else {
 				// If subscription is active
-				const res = await axiosSecure.put(
+				const res = await axiosPublic.put(
 					`/payment?email=${currentUser.email}`,
 					{
 						isPremium: true,
@@ -114,7 +113,7 @@ const AuthProvider = ({ children }) => {
 	}, [user, dbUser]);
 
 	useEffect(() => {
-		const unsubscribe = onAuthStateChanged(auth,  (currentUser) => {
+		const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
 			if (currentUser) {
 				if (!isAdmin) {
 					handlePremiumStatus(currentUser);
@@ -125,9 +124,9 @@ const AuthProvider = ({ children }) => {
 			} else {
 				localStorage.removeItem("authUser");
 				setUser(null);
-				setDbUser(null)
-				setIsAdmin(false)
-				setIsPremium(false)
+				setDbUser(null);
+				setIsAdmin(false);
+				setIsPremium(false);
 				setLoading(false);
 			}
 			console.log("observing", currentUser);
@@ -165,7 +164,8 @@ const AuthProvider = ({ children }) => {
 
 	const authInfo = {
 		handleGoogleSignIn,
-		user, dbUser,
+		user,
+		dbUser,
 		loading,
 		setLoading,
 		setUser,

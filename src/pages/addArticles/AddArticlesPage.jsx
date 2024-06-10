@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet-async";
 import axios from "axios";
 import Swal from "sweetalert2";
 import Select from "react-select";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 import useAuth from "../../hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import SKeletonLoader from "../../components/SKeletonLoader";
@@ -27,10 +27,10 @@ const AddArticlesPage = () => {
 	const [selectedTags, setSelectedTags] = useState([]);
 	// const [publisherTags, setPublisherTags] = useState([]);
 	const [selectedPublisher, setSelectedPublisher] = useState("");
-	const axiosSecure = useAxiosSecure();
+	const axiosPublic = useAxiosPublic();
 
 	// useEffect(() => {
-	// 	axiosSecure
+	// 	axiosPublic
 	// 		.get("/publisher")
 	// 		.then((res) => {
 	// 			const publishersArray = res.data;
@@ -50,7 +50,7 @@ const AddArticlesPage = () => {
 	} = useQuery({
 		queryKey: ["publisher"],
 		queryFn: async () => {
-			const res = await axiosSecure.get("/articles");
+			const res = await axiosPublic.get("/articles");
 			const publishersArray = res.data;
 			const publishertags = publishersArray.map((publisher) => ({
 				value: publisher.publisher,
@@ -100,8 +100,12 @@ const AddArticlesPage = () => {
 			viewCount,
 			isApproved,
 		};
-		if (dbUser?.isAdmin || dbUser?.isPremium || dbUser?.publishedArticles > 1) {
-			axiosSecure
+		if (
+			dbUser?.isAdmin ||
+			dbUser?.isPremium ||
+			dbUser?.publishedArticles > 1
+		) {
+			axiosPublic
 				.post("/articles", formData)
 				.then((res) => {
 					// console.log(res);
@@ -114,12 +118,11 @@ const AddArticlesPage = () => {
 							showConfirmButton: false,
 							timer: 1500,
 						});
-						
 					}
 				})
 				.catch((error) => console.log(error.message));
 
-			axiosSecure
+			axiosPublic
 				.patch(`/userpublication/${user.email}`, {
 					$inc: {
 						publishedArticles: 1,
@@ -131,7 +134,6 @@ const AddArticlesPage = () => {
 				.catch((error) => {
 					console.log(error.message);
 				});
-			
 		} else {
 			Swal.fire({
 				position: "top-end",

@@ -1,37 +1,39 @@
-import axios from 'axios';
-import SectionTitle from '../components/SectionTitle';
-import useAxiosSecure from '../hooks/useAxiosSecure';
+import axios from "axios";
+import SectionTitle from "../components/SectionTitle";
+import useAxiosPublic from "../hooks/useAxiosPublic";
 
 const imageHostingKey = import.meta.env.VITE_imgbb_API;
 const imageHostingAPI = `https://api.imgbb.com/1/upload?key=${imageHostingKey}`;
 
 const AddPublisher = () => {
-    const axiosSecure = useAxiosSecure()
-    const handlePublisher = async(event)=>{
-        event.preventDefault()
-        const form = event.target
-        const res = await axios.post(imageHostingAPI, {image:form.logo.files[0]},{
-			headers:{
-				"Content-Type":"multipart/form-data"
+	const axiosPublic = useAxiosPublic();
+	const handlePublisher = async (event) => {
+		event.preventDefault();
+		const form = event.target;
+		const res = await axios.post(
+			imageHostingAPI,
+			{ image: form.logo.files[0] },
+			{
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
 			}
-		})
-        const publisher = form.publisher.value
-        const publisherLogo = res.data.data.display_url;
-        const publisherInfo ={
-            publisher,
-            publisherLogo
-        }
-        axiosSecure.post('/publisher', publisherInfo)
-        .then(res=>console.log(res.data.insertedId))
-        .catch(error=> console.log(error.message))
-    }
-    return (
-		<div className='flex h-screen mx-auto justify-center items-center'>
-			<form
-				className="mr-4 pr-4 w-fit"
-				onSubmit={handlePublisher}
-			>
-				<div className='mb-5'>
+		);
+		const publisher = form.publisher.value;
+		const publisherLogo = res.data.data.display_url;
+		const publisherInfo = {
+			publisher,
+			publisherLogo,
+		};
+		axiosPublic
+			.post("/publisher", publisherInfo)
+			.then((res) => console.log(res.data.insertedId))
+			.catch((error) => console.log(error.message));
+	};
+	return (
+		<div className="flex h-screen mx-auto justify-center items-center">
+			<form className="mr-4 pr-4 w-fit" onSubmit={handlePublisher}>
+				<div className="mb-5">
 					<SectionTitle h1={"Add Publisher Here"}></SectionTitle>
 				</div>
 				<div>

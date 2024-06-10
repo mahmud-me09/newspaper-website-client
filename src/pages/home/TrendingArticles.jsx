@@ -1,4 +1,3 @@
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import { useQuery } from "@tanstack/react-query";
 import SectionTitle from "../../components/SectionTitle";
 import usePremium from "../../hooks/usePremium";
@@ -7,10 +6,11 @@ import SKeletonLoader from "../../components/SKeletonLoader";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { useNavigate } from "react-router-dom";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 const TrendingArticles = () => {
 	const axiosPublic = useAxiosPublic();
-	const navigate = useNavigate()
+	const navigate = useNavigate();
 	const [isPremium] = usePremium();
 	const { data: articles = [], isLoading } = useQuery({
 		queryKey: ["trendingArticles"],

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import useAxiosSecure from "../hooks/useAxiosSecure";
+import useAxiosPublic from "../hooks/useAxiosPublic";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import SKeletonLoader from "../components/SKeletonLoader";
 
 const AllUsersPage = () => {
-	const axiosSecure = useAxiosSecure();
+	const axiosPublic = useAxiosPublic();
 
 	const {
 		data: users = [],
@@ -13,14 +13,14 @@ const AllUsersPage = () => {
 	} = useQuery({
 		queryKey: ["users"],
 		queryFn: async () => {
-			const res = await axiosSecure.get("/users");
+			const res = await axiosPublic.get("/users");
 			return res.data;
 		},
 	});
 
 	const mutation = useMutation({
 		mutationFn: (id) =>
-			axiosSecure
+			axiosPublic
 				.patch(`/users/${id}`, { isAdmin: true })
 				.then((res) => refetch()),
 		onSuccess: () => {

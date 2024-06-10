@@ -1,16 +1,15 @@
-import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import SKeletonLoader from '../../components/SKeletonLoader';
-import useAxiosPublic from '../../hooks/useAxiosPublic';
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import SKeletonLoader from "../../components/SKeletonLoader";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 const DetailArticlePage = () => {
 	const { id } = useParams();
 	console.log(id);
 	const axiosPublic = useAxiosPublic();
 
-	
 	const {
-		data:article,
+		data: article,
 		isLoading,
 		refetch,
 	} = useQuery({
@@ -20,7 +19,7 @@ const DetailArticlePage = () => {
 			return res.data;
 		},
 	});
-	console.log(article)
+	console.log(article);
 
 	return (
 		<div className="my-8">
@@ -42,7 +41,9 @@ const DetailArticlePage = () => {
 								<p>contact: {article?.author?.email}</p>
 							</div>
 						</div>
-						<p>Published Date: {article?.createdAt?.split("T")[0]}</p>
+						<p>
+							Published Date: {article?.createdAt?.split("T")[0]}
+						</p>
 					</div>
 					<div className="my-4">
 						<img

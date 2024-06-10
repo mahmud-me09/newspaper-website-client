@@ -9,14 +9,13 @@ import { useState } from "react";
 
 const AllApprovedArticles = () => {
 	const axiosPublic = useAxiosPublic();
-    const navigate = useNavigate()
-	const [isPremium] = usePremium()
+	const navigate = useNavigate();
+	const [isPremium] = usePremium();
 	const [searchParams, setSearchParams] = useState({
 		title: "",
 		publisher: "",
 		tags: "",
 	});
-
 
 	const {
 		data: articles = [],
@@ -37,7 +36,6 @@ const AllApprovedArticles = () => {
 			return res.data;
 		},
 	});
-	
 
 	const handleSearchChange = (e) => {
 		setSearchParams((prev) => ({
@@ -57,7 +55,10 @@ const AllApprovedArticles = () => {
 				<SectionTitle h1={"All Articles"}></SectionTitle>
 			</div>
 			<div className="mb-4">
-				<form onSubmit={handleSearchSubmit} className="flex justify-center gap-4">
+				<form
+					onSubmit={handleSearchSubmit}
+					className="flex justify-center gap-4"
+				>
 					<input
 						type="text"
 						name="title"
@@ -82,7 +83,10 @@ const AllApprovedArticles = () => {
 						placeholder="Filter by tags (comma-separated)"
 						className="input input-bordered"
 					/>
-					<button type="submit" className="btn btn-success btn-outline">
+					<button
+						type="submit"
+						className="btn btn-success btn-outline"
+					>
 						Search
 					</button>
 				</form>

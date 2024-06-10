@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useLocation } from "react-router-dom";
 import Select from "react-select";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 import useAuth from "../../hooks/useAuth";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -24,8 +24,8 @@ const imageHostingKey = import.meta.env.VITE_imgbb_API;
 const imageHostingAPI = `https://api.imgbb.com/1/upload?key=${imageHostingKey}`;
 
 const UpdateArticle = () => {
-    const location = useLocation()
-    const stateArticle = location.state.article
+	const location = useLocation();
+	const stateArticle = location.state.article;
 	const {
 		data: article = stateArticle,
 		isLoading,
@@ -33,13 +33,13 @@ const UpdateArticle = () => {
 	} = useQuery({
 		queryKey: ["article", stateArticle._id],
 		queryFn: async () => {
-			const res = await axiosSecure.get(
+			const res = await axiosPublic.get(
 				`/articledetail/${stateArticle._id}`
 			);
 			return res.data;
 		},
 	});
-	const axiosSecure = useAxiosSecure();
+	const axiosPublic = useAxiosPublic();
 	const { user } = useAuth();
 	const [selectedTags, setSelectedTags] = useState(
 		article.tags.map((tag) => ({
@@ -54,28 +54,26 @@ const UpdateArticle = () => {
 	});
 
 	console.log(article);
-	const {
-		data: publisherTags = [],
-		isLoading:isLoadingPublisher,
-	} = useQuery({
-		queryKey: ["publisher"],
-		queryFn: async () => {
-			const res = await axiosSecure.get("/articles");
-			const publishersArray = res.data;
-			const publishertags = publishersArray.map((publisher) => ({
-				value: publisher.publisher,
-				label: publisher.publisher,
-			}));
-			return publishertags;
-		},
-	});
+	const { data: publisherTags = [], isLoading: isLoadingPublisher } =
+		useQuery({
+			queryKey: ["publisher"],
+			queryFn: async () => {
+				const res = await axiosPublic.get("/articles");
+				const publishersArray = res.data;
+				const publishertags = publishersArray.map((publisher) => ({
+					value: publisher.publisher,
+					label: publisher.publisher,
+				}));
+				return publishertags;
+			},
+		});
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
 		const form = event.target;
-        let image = article.image
-        if(form.image.files[0]){
-            res = await axios.post(
+		let image = article.image;
+		if (form.image.files[0]) {
+			res = await axios.post(
 				imageHostingAPI,
 				{ image: form.image.files[0] },
 				{
@@ -84,9 +82,9 @@ const UpdateArticle = () => {
 					},
 				}
 			);
-            image = res.data.data.display_url
-        }
-		
+			image = res.data.data.display_url;
+		}
+
 		const name = form.name.value;
 		const publisher = selectedPublisher.value;
 		const tags = selectedTags.map((selectedTag) => selectedTag.value);
@@ -95,7 +93,7 @@ const UpdateArticle = () => {
 		const viewCount = article.viewCount;
 		const isApproved = article.isApproved;
 		const userEmail = article.author.email;
-		const createdAt = article.createdAt
+		const createdAt = article.createdAt;
 		const formData = {
 			name,
 			image,
@@ -114,11 +112,11 @@ const UpdateArticle = () => {
 			isApproved,
 		};
 
-		axiosSecure
+		axiosPublic
 			.put(`/articles/${article._id}`, formData)
 			.then((res) => {
 				if (res.data.modifiedCount) {
-                    refetch()
+					refetch();
 					Swal.fire({
 						position: "top-end",
 						icon: "success",
@@ -127,15 +125,18 @@ const UpdateArticle = () => {
 						timer: 1500,
 					});
 					form.reset();
-				} else if (res.data.matchedCount>0 && res.data.modifiedCount ==0){
-                    Swal.fire({
+				} else if (
+					res.data.matchedCount > 0 &&
+					res.data.modifiedCount == 0
+				) {
+					Swal.fire({
 						position: "top-end",
 						icon: "error",
 						title: `Article is not modified`,
 						showConfirmButton: false,
 						timer: 1500,
 					});
-                }
+				}
 			})
 			.catch((error) => console.log(error.message));
 	};

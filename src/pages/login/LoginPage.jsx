@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {  useState } from "react";
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import img from "../../assets/logo.png";
 import Swal from "sweetalert2";
@@ -7,19 +7,18 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import useAuth from "../../hooks/useAuth";
 
-
 const LoginPage = () => {
-    const { handleGoogleSignIn, signInUser, setLoading } = useAuth();
-	const axiosPublic = useAxiosPublic()
-    const navigate = useNavigate()
-    const [showPassword, setShowPassword] = useState(false);
+	const { handleGoogleSignIn, signInUser, setLoading } = useAuth();
+	const axiosPublic = useAxiosPublic();
+	const navigate = useNavigate();
+	const [showPassword, setShowPassword] = useState(false);
 	const location = useLocation();
 	const { from } = location.state || { from: { pathname: "/" } };
 
-    const handleShowPassword = () => {
+	const handleShowPassword = () => {
 		setShowPassword(!showPassword);
 	};
-	const handleGoogleSignInWithRedirect = ()=>{
+	const handleGoogleSignInWithRedirect = () => {
 		handleGoogleSignIn()
 			.then((result) => {
 				// const token = credential.accessToken;
@@ -53,11 +52,8 @@ const LoginPage = () => {
 			})
 			.catch((error) => {
 				const errorCode = error.code;
-				const errorMessage = error.message;				
-				console.log(
-					errorMessage,
-					errorCode,
-				);
+				const errorMessage = error.message;
+				console.log(errorMessage, errorCode);
 				Swal.fire({
 					icon: "error",
 					title: "Oops...",
@@ -65,33 +61,33 @@ const LoginPage = () => {
 					footer: `This happened because ${errorMessage}`,
 				});
 			});
-	}
+	};
 
-    const handleSignIn = (e)=>{
-        e.preventDefault()
-        const form = e.target
-        const email = form.email.value
-        const password = form.password.value
-        signInUser(email,password)
-        .then(result=>{
-            Swal.fire({
-				position: "top-end",
-				icon: "success",
-				title: `You are successfully logged in.`,
-				showConfirmButton: false,
-				timer: 1500,
+	const handleSignIn = (e) => {
+		e.preventDefault();
+		const form = e.target;
+		const email = form.email.value;
+		const password = form.password.value;
+		signInUser(email, password)
+			.then((result) => {
+				Swal.fire({
+					position: "top-end",
+					icon: "success",
+					title: `You are successfully logged in.`,
+					showConfirmButton: false,
+					timer: 1500,
+				});
+				navigate(from, { replace: true });
+			})
+			.catch((error) => {
+				Swal.fire({
+					icon: "error",
+					title: "Oops...",
+					text: "Failed to Sign in",
+					footer: `This happened because ${error.message}`,
+				});
 			});
-            navigate(from, { replace: true });
-        })
-        .catch(error=>{
-            Swal.fire({
-				icon: "error",
-				title: "Oops...",
-				text: "Failed to Sign in",
-				footer: `This happened because ${error.message}`,
-			});
-        })
-    }
+	};
 	return (
 		<>
 			<Helmet>

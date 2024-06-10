@@ -1,12 +1,12 @@
 import React from "react";
-import useAxiosSecure from "../hooks/useAxiosSecure";
+import useAxiosPublic from "../hooks/useAxiosPublic";
 import SectionTitle from "../components/SectionTitle";
 import Swal from "sweetalert2";
 import { useQuery } from "@tanstack/react-query";
-import SkeletonLoader from "../components/SKeletonLoader"
+import SkeletonLoader from "../components/SKeletonLoader";
 
 const AllArticlesPage = () => {
-	const axiosSecure = useAxiosSecure();
+	const axiosPublic = useAxiosPublic();
 
 	const {
 		data: articles = [],
@@ -15,13 +15,12 @@ const AllArticlesPage = () => {
 	} = useQuery({
 		queryKey: ["articles", "all"],
 		queryFn: async () => {
-			const res = await axiosSecure.get("/articles");
+			const res = await axiosPublic.get("/articles");
 			return res.data;
 		},
 	});
 
-	const handleDeleteButton = (id)=>{
-
+	const handleDeleteButton = (id) => {
 		const swalWithBootstrapButtons = Swal.mixin({
 			customClass: {
 				confirmButton: "btn gap-2 btn-error",
@@ -41,17 +40,16 @@ const AllArticlesPage = () => {
 			})
 			.then((result) => {
 				if (result.isConfirmed) {
-					axiosSecure.delete(`/articles/${id}`).then((res) => {
+					axiosPublic.delete(`/articles/${id}`).then((res) => {
 						if (res.data.deletedCount > 0) {
 							swalWithBootstrapButtons.fire({
 								title: "Deleted!",
 								text: "The Article has been deleted.",
 								icon: "success",
 							});
-							refetch()
+							refetch();
 						}
 					});
-					
 				} else if (
 					/* Read more about handling dismissals below */
 					result.dismiss === Swal.DismissReason.cancel
@@ -63,11 +61,10 @@ const AllArticlesPage = () => {
 					});
 				}
 			});
-	}
-
+	};
 
 	const handleApproveButton = (id) => {
-		axiosSecure
+		axiosPublic
 			.put(`/articles/${id}`, { isApproved: true })
 			.then((response) => {
 				if (response.data.modifiedCount > 0) {
@@ -77,7 +74,7 @@ const AllArticlesPage = () => {
 			.catch((error) => console.log(error));
 	};
 	const handlePremiumButton = (id) => {
-		axiosSecure
+		axiosPublic
 			.put(`/articles/${id}`, { isPremium: true })
 			.then((response) => {
 				if (response.data.modifiedCount > 0) {
@@ -105,7 +102,7 @@ const AllArticlesPage = () => {
           ${JSON.stringify("You have already Approved this article")}
         `);
 					} else {
-						const response = await axiosSecure.put(
+						const response = await axiosPublic.put(
 							`/articles/${article._id}`,
 							{ adminMessage: message }
 						);
@@ -148,12 +145,12 @@ const AllArticlesPage = () => {
 		setPage(pageNumber);
 	};
 	const goToPreviousPage = () => {
-        setPage((prevPage) => Math.max(prevPage - 1, 1));
-    };
+		setPage((prevPage) => Math.max(prevPage - 1, 1));
+	};
 
-    const goToNextPage = () => {
-        setPage((prevPage) => Math.min(prevPage + 1, totalPages));
-    };
+	const goToNextPage = () => {
+		setPage((prevPage) => Math.min(prevPage + 1, totalPages));
+	};
 
 	return (
 		<>
@@ -264,9 +261,7 @@ const AllArticlesPage = () => {
 							className="btn"
 						>{`<<`}</li>
 						{[...Array(totalPages).keys()].map((pageNumber) => (
-							<li
-								key={pageNumber}
-							>
+							<li key={pageNumber}>
 								<button
 									className={`page-link btn ${
 										pageNumber + 1 === page

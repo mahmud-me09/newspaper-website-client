@@ -2,15 +2,15 @@ import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Chart } from "react-google-charts";
 import axios from "axios";
-import useAxiosSecure from "../hooks/useAxiosSecure";
+import useAxiosPublic from "../hooks/useAxiosPublic";
 
 const Dashboard = () => {
-	const axiosSecure = useAxiosSecure();
+	const axiosPublic = useAxiosPublic();
 
 	const { data: articles = [] } = useQuery({
 		queryKey: ["articles", "all"],
 		queryFn: async () => {
-			const res = await axiosSecure.get("/articles");
+			const res = await axiosPublic.get("/articles");
 			return res.data;
 		},
 	});
@@ -21,7 +21,7 @@ const Dashboard = () => {
 		useQuery({
 			queryKey: ["publisherArticles"],
 			queryFn: async () => {
-				const response = await axiosSecure.get(
+				const response = await axiosPublic.get(
 					"/publisher/articles/count"
 				);
 				return response.data;
@@ -32,7 +32,7 @@ const Dashboard = () => {
 		useQuery({
 			queryKey: ["publisherViewCount"],
 			queryFn: async () => {
-				const response = await axiosSecure.get("/publisher/viewcount");
+				const response = await axiosPublic.get("/publisher/viewcount");
 				return response.data;
 			},
 		});

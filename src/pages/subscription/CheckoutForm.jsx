@@ -1,33 +1,31 @@
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { useEffect, useState } from "react";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-
-const CheckoutForm = ({subscriptionPeriod, price}) => {
+const CheckoutForm = ({ subscriptionPeriod, price }) => {
 	const [error, setError] = useState("");
 	const [clientSecret, setClientSecret] = useState("");
 	const [transactionId, setTransactionId] = useState("");
 	const stripe = useStripe();
 	const elements = useElements();
-	const axiosSecure = useAxiosSecure();
+	const axiosPublic = useAxiosPublic();
 	const { user } = useAuth();
 
 	const navigate = useNavigate();
 
-
 	useEffect(() => {
 		if (price >= 0) {
-			axiosSecure
+			axiosPublic
 				.post("/create-payment-intent", { price: price })
 				.then((res) => {
 					// console.log(res.data.clientSecret);
 					setClientSecret(res.data.clientSecret);
 				});
 		}
-	}, [axiosSecure, price]);
+	}, [axiosPublic, price]);
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
@@ -75,7 +73,6 @@ const CheckoutForm = ({subscriptionPeriod, price}) => {
 				console.log("transaction id", paymentIntent.id);
 				setTransactionId(paymentIntent.id);
 
-
 				const currentDate = new Date();
 				let expiredDate = new Date(currentDate);
 
@@ -94,11 +91,15 @@ const CheckoutForm = ({subscriptionPeriod, price}) => {
 					expiredDate: expiredDate.toISOString(),
 				};
 
-				const res = await axiosSecure.put(`/payment?email=${user.email}`, {
-					subscriptionHistory: payment, isPremium:true
-				});
+				const res = await axiosPublic.put(
+					`/payment?email=${user.email}`,
+					{
+						subscriptionHistory: payment,
+						isPremium: true,
+					}
+				);
 				console.log("payment saved", res.data);
-				if (res.data?.modifiedCount>0) {
+				if (res.data?.modifiedCount > 0) {
 					Swal.fire({
 						position: "top-end",
 						icon: "success",
@@ -106,15 +107,21 @@ const CheckoutForm = ({subscriptionPeriod, price}) => {
 						showConfirmButton: false,
 						timer: 1500,
 					});
-					navigate("/")
+					navigate("/");
 				}
 			}
 		}
 	};
 
 	return (
-		<form onSubmit={handleSubmit} className="bg-red-50 w-96 p-10 my-5 mx-auto">
-			<h1 className="py-5 text-center text-lg font-bold">Pay ${price} for {subscriptionPeriod} {subscriptionPeriod===1? "min":"day"} Subscription</h1>
+		<form
+			onSubmit={handleSubmit}
+			className="bg-red-50 w-96 p-10 my-5 mx-auto"
+		>
+			<h1 className="py-5 text-center text-lg font-bold">
+				Pay ${price} for {subscriptionPeriod}{" "}
+				{subscriptionPeriod === 1 ? "min" : "day"} Subscription
+			</h1>
 			<CardElement
 				options={{
 					style: {

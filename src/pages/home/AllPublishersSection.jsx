@@ -22,8 +22,15 @@ const AllPublishersSection = () => {
 			<SectionTitle h1="All Publishers" />
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-4 gap-4">
 				{publishers.map((publisher) => (
-					<div key={publisher._id} className="flex items-center gap-2 border">
-						<img className="w-10 h-10" src={publisher.publisherLogo} alt="" />
+					<div
+						key={publisher._id}
+						className="flex items-center gap-2 border"
+					>
+						<img
+							className="w-10 h-10"
+							src={publisher.publisherLogo}
+							alt=""
+						/>
 						<h2>{publisher.publisher}</h2>
 					</div>
 				))}

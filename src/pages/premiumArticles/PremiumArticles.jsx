@@ -31,7 +31,11 @@ const PremiumArticles = () => {
 						{articles.map((article) => (
 							<div
 								key={article._id}
-								className={`card max-w-1/2 border ${article.isPremium? "bg-amber-100 border-amber-200" : "bg-base-100"} shadow-xl`}
+								className={`card max-w-1/2 border ${
+									article.isPremium
+										? "bg-amber-100 border-amber-200"
+										: "bg-base-100"
+								} shadow-xl`}
 							>
 								<h2 className=" card card-title mt-10 ">
 									{article.name}

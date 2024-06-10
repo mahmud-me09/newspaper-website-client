@@ -1,7 +1,7 @@
 import React from "react";
 import useAuth from "../../hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 import SectionTitle from "../../components/SectionTitle";
 import { useNavigate } from "react-router-dom";
 import SKeletonLoader from "../../components/SKeletonLoader";
@@ -10,7 +10,7 @@ import Swal from "sweetalert2";
 const MyArticles = () => {
 	const { user } = useAuth();
 	const navigate = useNavigate();
-	const axiosSecure = useAxiosSecure();
+	const axiosPublic = useAxiosPublic();
 	const {
 		data: articles = [],
 		isLoading,
@@ -18,7 +18,7 @@ const MyArticles = () => {
 	} = useQuery({
 		queryKey: ["articles", user.email],
 		queryFn: async () => {
-			const res = await axiosSecure.get(`/articles?email=${user.email}`);
+			const res = await axiosPublic.get(`/articles?email=${user.email}`);
 			return res.data;
 		},
 	});
@@ -43,7 +43,7 @@ const MyArticles = () => {
 			})
 			.then((result) => {
 				if (result.isConfirmed) {
-					axiosSecure.delete(`/articles/${id}`).then((res) => {
+					axiosPublic.delete(`/articles/${id}`).then((res) => {
 						if (res.data.deletedCount > 0) {
 							swalWithBootstrapButtons.fire({
 								title: "Deleted!",
@@ -109,7 +109,7 @@ button,delete button */}
 												navigate(
 													`/articles/${article._id}`
 												);
-												axiosSecure
+												axiosPublic
 													.patch(
 														`/articledetail/${article._id}`,
 														{
