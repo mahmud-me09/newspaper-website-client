@@ -9,10 +9,9 @@ const usePremium = () => {
 		queryKey: ["isPremium", user?.email],
 		enabled: !loading,
 		queryFn: async () => {
-			// console.log("asking or checking is admin", user);
 			const res = await axiosSecure.get(`/users?email=${user.email}`);
-			// console.log(res.data.isAdmin);
-			return res.data?.allowedFor >= 5;
+
+			return res.data?.isPremium;
 		},
 	});
 	return [isPremium, isPremiumLoading];

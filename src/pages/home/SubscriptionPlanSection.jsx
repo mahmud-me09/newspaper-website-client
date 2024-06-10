@@ -11,9 +11,9 @@ const SubscriptionPlanSection = () => {
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
 				<div className="card border border-gray-200 p-4 shadow-lg flex flex-col relative">
 					<div className="absolute top-2 right-2 text-lg font-bold text-red-500">
-						$0
+						$1
 					</div>
-					<h2 className="text-xl font-bold mb-2">Free Plan</h2>
+					<h2 className="text-xl font-bold mb-2">$1 Plan</h2>
 					<p className="mb-4">Free for One Minutes</p>
 					<ul className="list-disc list-inside mb-4 flex-grow">
 						<li>Access to basic articles</li>
@@ -23,7 +23,7 @@ const SubscriptionPlanSection = () => {
 					<button
 						onClick={() =>
 							navigate("/subscription", {
-								state: { price: 0, period: 1 },
+								state: { price: 1, period: 1 },
 							})
 						}
 						className="btn btn-primary mt-auto"

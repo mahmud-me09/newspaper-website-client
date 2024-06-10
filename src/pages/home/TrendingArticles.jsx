@@ -6,9 +6,11 @@ import Slider from "react-slick";
 import SKeletonLoader from "../../components/SKeletonLoader";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { useNavigate } from "react-router-dom";
 
 const TrendingArticles = () => {
 	const axiosPublic = useAxiosPublic();
+	const navigate = useNavigate()
 	const [isPremium] = usePremium();
 	const { data: articles = [], isLoading } = useQuery({
 		queryKey: ["trendingArticles"],

@@ -10,7 +10,7 @@ const Navbar = () => {
 	const { user, handleSignOut } = useAuth();
 	
 	const [isAdmin, isAdminLoading] = useAdmin();
-	const [isPremium,isPremiumLoading] = usePremium()
+	const [isPremium,isPremiumLoading, refetch] = usePremium()
 
 	const navlinkItems = [
 		{
@@ -46,18 +46,6 @@ const Navbar = () => {
 	];
 
 	const renderNavLinks = () => {
-		// if (isPremiumLoading || isAdminLoading) {
-		// 	return (
-		// 		<li className="font-normal relative group">
-		// 			<NavLink
-		// 				className="loading ml-4 flex items-center gap-2 justify-center relative"
-		// 				to="#"
-		// 			>
-		// 				Loading...
-		// 			</NavLink>
-		// 		</li>
-		// 	);
-		// }
 
 		return navlinkItems.map((navlink) => {
 			

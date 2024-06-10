@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 
 const CheckoutForm = ({subscriptionPeriod, price}) => {
@@ -15,11 +16,10 @@ const CheckoutForm = ({subscriptionPeriod, price}) => {
 	const { user } = useAuth();
 
 	const navigate = useNavigate();
-	console.log(price, subscriptionPeriod)
 
 
 	useEffect(() => {
-		if (price > 0) {
+		if (price >= 0) {
 			axiosSecure
 				.post("/create-payment-intent", { price: price })
 				.then((res) => {
@@ -75,7 +75,7 @@ const CheckoutForm = ({subscriptionPeriod, price}) => {
 				console.log("transaction id", paymentIntent.id);
 				setTransactionId(paymentIntent.id);
 
-				// now save the payment in the database
+
 				const currentDate = new Date();
 				let expiredDate = new Date(currentDate);
 
@@ -94,19 +94,19 @@ const CheckoutForm = ({subscriptionPeriod, price}) => {
 					expiredDate: expiredDate.toISOString(),
 				};
 
-				const res = await axiosSecure.put(`/payments?email=${user.email}`, {
-					subscriptionHistory: payment,
+				const res = await axiosSecure.put(`/payment?email=${user.email}`, {
+					subscriptionHistory: payment, isPremium:true
 				});
 				console.log("payment saved", res.data);
-				refetch();
-				if (res.data?.paymentResult?.insertedId) {
+				if (res.data?.modifiedCount>0) {
 					Swal.fire({
 						position: "top-end",
 						icon: "success",
-						title: "Thank you for the taka paisa",
+						title: "Thank you for the payment",
 						showConfirmButton: false,
 						timer: 1500,
 					});
+					navigate("/")
 				}
 			}
 		}

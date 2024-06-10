@@ -23,7 +23,7 @@ const imageHostingKey = import.meta.env.VITE_imgbb_API;
 const imageHostingAPI = `https://api.imgbb.com/1/upload?key=${imageHostingKey}`;
 
 const AddArticlesPage = () => {
-	const { user } = useAuth();
+	const { user, dbUser } = useAuth();
 	const [selectedTags, setSelectedTags] = useState([]);
 	// const [publisherTags, setPublisherTags] = useState([]);
 	const [selectedPublisher, setSelectedPublisher] = useState("");
@@ -63,7 +63,7 @@ const AddArticlesPage = () => {
 	const handleSubmit = async (event) => {
 		event.preventDefault();
 		const form = event.target;
-		
+
 		const res = await axios.post(
 			imageHostingAPI,
 			{ image: form.image.files[0] },
@@ -78,52 +78,69 @@ const AddArticlesPage = () => {
 		const publisher = selectedPublisher.value;
 		const tags = selectedTags.map((selectedTag) => selectedTag.value);
 		const description = form.description.value;
-		const isPremium = user.isPremium || false;
+		const isPremium = false;
 		const viewCount = 0;
 		const isApproved = false;
 		const userEmail = user.email;
-		const createdAt = new Date()
+		const createdAt = new Date();
 		const formData = {
 			name,
 			image,
 			publisher,
 			tags,
 			createdAt,
-			author:{name:user.displayName, photo:user.photoURL, email:user.email},
+			author: {
+				name: user.displayName,
+				photo: user.photoURL,
+				email: user.email,
+			},
 			description,
 			userEmail,
 			isPremium,
 			viewCount,
 			isApproved,
 		};
-		console.log(formData);
-		// if(user?.allowedFor >= user?.publishedArticles){
-		// 	Swal.fire({
-		// 		position: "top-end",
-		// 		icon: "error",
-		// 		title: `You have reached your maximum limit for posting articles. Go to the subscription page for posting more articles`,
-		// 		showConfirmButton: false,
-		// 		timer: 1500,
-		// 	});
-		// 	form.reset();
-		// }else{
-		axiosSecure
-			.post("/articles", formData)
-			.then((res) => {
-				console.log(res);
-				if (res.data.insertedId) {
-					Swal.fire({
-						position: "top-end",
-						icon: "success",
-						title: `Article Created Successfully`,
-						showConfirmButton: false,
-						timer: 1500,
-					});
+		if (dbUser?.isAdmin || dbUser?.isPremium || dbUser?.publishedArticles > 1) {
+			axiosSecure
+				.post("/articles", formData)
+				.then((res) => {
+					// console.log(res);
 					form.reset();
-				}
-			})
-			.catch((error) => console.log(error.message));
-		// }
+					if (res.data.insertedId) {
+						Swal.fire({
+							position: "top-end",
+							icon: "success",
+							title: `Article Created Successfully`,
+							showConfirmButton: false,
+							timer: 1500,
+						});
+						
+					}
+				})
+				.catch((error) => console.log(error.message));
+
+			axiosSecure
+				.patch(`/userpublication/${user.email}`, {
+					$inc: {
+						publishedArticles: 1,
+					},
+				})
+				.then((res) => {
+					console.log(res.data);
+				})
+				.catch((error) => {
+					console.log(error.message);
+				});
+			
+		} else {
+			Swal.fire({
+				position: "top-end",
+				icon: "error",
+				title: `You have reached your maximum limit for posting articles. Go to the subscription page for posting more articles`,
+				showConfirmButton: false,
+				timer: 1500,
+			});
+		}
 	};
 
 	return (

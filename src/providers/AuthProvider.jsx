@@ -9,19 +9,22 @@ import {
 import auth from "../utils/firebase.config";
 import Swal from "sweetalert2";
 import { createContext, useEffect, useState } from "react";
-import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
 import useAxiosPublic from "../hooks/useAxiosPublic";
+import useAxiosSecure from "../hooks/useAxiosSecure";
+
 
 export const AuthContext = createContext(null);
 
 const AuthProvider = ({ children }) => {
 	const [isAdmin, setIsAdmin] = useState(false);
-	const db = getFirestore();
+	const [isPremium, setIsPremium] = useState(false)
 	const axiosPublic = useAxiosPublic();
+	const axiosSecure = useAxiosSecure()
 	const [user, setUser] = useState(() => {
 		const savedUser = localStorage.getItem("authUser");
 		return savedUser ? JSON.parse(savedUser) : null;
 	});
+	const [dbUser,setDbUser] = useState(null)
 	const [loading, setLoading] = useState(true);
 
 	const googleProvider = new GoogleAuthProvider();
@@ -44,48 +47,77 @@ const AuthProvider = ({ children }) => {
 		if (user) {
 			axiosPublic
 				.get(`/users?email=${user.email}`)
-				.then((response) => setIsAdmin(response.data.isAdmin))
+				.then((response) => {
+					setIsAdmin(response.data.isAdmin)
+					setIsPremium(response.data?.isPremium)
+					setDbUser(response.data)
+				})
 				.catch((error) => {
 					console.error("Failed to fetch user data", error);
 					setIsAdmin(false);
+					setIsPremium(false);
+					setDbUser(null);
 				});
 		}
 	}, [user, axiosPublic]);
 
 	const handlePremiumStatus = async (currentUser) => {
 		try {
-			const userDocRef = doc(db, "users", currentUser.uid);
-			const userDoc = await getDoc(userDocRef);
-			console.log("premium")
-			if (userDoc.exists()) {
-				const userData = userDoc.data();
-				if (userData?.premiumTaken) {
-					const currentTime = new Date();
-					const premiumTakenTime = new Date(
-						userData.premiumTaken.seconds * 1000
-					);
+			if (!dbUser) {
+				console.error(
+					"User data not available to check premium status"
+				);
+				return;
+			}
+			if(!dbUser.subscriptionHistory?.expiredDate){
+				return
+			}
 
-					if (currentTime > premiumTakenTime) {
-						await updateDoc(userDocRef, { premiumTaken: null });
-					}
-					else{
+			const currentDate = new Date();
+			const expiredDate = new Date(
+				dbUser.subscriptionHistory?.expiredDate
+			);
 
+			if (currentDate > expiredDate) {
+				// If subscription expired, update premium status to false
+				const res = await axiosSecure.put(
+					`/payment?email=${currentUser.email}`,
+					{
+						isPremium: false,
 					}
-				}
+				);
+				console.log("User premium status updated to false");
+				setIsPremium(false);
 			} else {
-				console.log("No such document!");
+				// If subscription is active
+				const res = await axiosSecure.put(
+					`/payment?email=${currentUser.email}`,
+					{
+						isPremium: true,
+					}
+				);
+				console.log("User premium status updated to true");
+				setIsPremium(true);
 			}
 		} catch (error) {
-			console.error("Error fetching or updating user document", error);
+			console.error("Failed to update premium status", error);
 		}
 	};
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (user && !dbUser.isAdmin) {
+				handlePremiumStatus(user);
+			}
+		}, 60000); // Check every minute
+		return () => clearInterval(interval);
+	}, [user, dbUser]);
 
 	useEffect(() => {
 		const unsubscribe = onAuthStateChanged(auth,  (currentUser) => {
 			if (currentUser) {
 				if (!isAdmin) {
-					 handlePremiumStatus(currentUser);
-					 
+					handlePremiumStatus(currentUser);
 				}
 				localStorage.setItem("authUser", JSON.stringify(currentUser));
 				setUser(currentUser);
@@ -93,12 +125,15 @@ const AuthProvider = ({ children }) => {
 			} else {
 				localStorage.removeItem("authUser");
 				setUser(null);
+				setDbUser(null)
+				setIsAdmin(false)
+				setIsPremium(false)
 				setLoading(false);
 			}
 			console.log("observing", currentUser);
 		});
 		return () => unsubscribe();
-	}, [isAdmin]);
+	}, [isAdmin, dbUser]);
 
 	const handleSignOut = async () => {
 		setLoading(true);
@@ -130,7 +165,7 @@ const AuthProvider = ({ children }) => {
 
 	const authInfo = {
 		handleGoogleSignIn,
-		user,
+		user, dbUser,
 		loading,
 		setLoading,
 		setUser,
