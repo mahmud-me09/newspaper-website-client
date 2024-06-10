@@ -8,6 +8,8 @@ import Swal from "sweetalert2";
 import useAuth from "../../hooks/useAuth";
 import useAdmin from "../../hooks/useAdmin";
 import usePremium from "../../hooks/usePremium";
+import UsersFeedback from "./UsersFeedback";
+import AboutUs from "./AboutUs";
 
 
 
@@ -51,6 +53,8 @@ const Home = () => {
 			<AllPublishersSection />
 			<StatisticsSection />
 			<SubscriptionPlanSection />
+			<AboutUs/>
+			<UsersFeedback/>
 
 		</div>
 	);
