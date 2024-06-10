@@ -160,7 +160,7 @@ const AllArticlesPage = () => {
 			{isLoading ? (
 				<SkeletonLoader></SkeletonLoader>
 			) : (
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+				<div className="grid grid-cols-1 md:grid-cols-2 place-items-center lg:grid-cols-3 gap-4">
 					{visibleArticles.map((article) => (
 						<div
 							key={article._id}
@@ -183,8 +183,7 @@ const AllArticlesPage = () => {
 										<img
 											className="h-12 w-12 rounded-full"
 											src={
-												article?.author?.image ||
-												"https://i.ibb.co/vJ6npKh/jonny-Depp.jpg"
+												article?.author?.photo
 											}
 											alt="author"
 										/>

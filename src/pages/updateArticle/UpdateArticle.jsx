@@ -53,7 +53,7 @@ const UpdateArticle = () => {
 		label: article.publisher,
 	});
 
-	console.log(article);
+	// console.log(article);
 	const { data: publisherTags = [], isLoading: isLoadingPublisher } =
 		useQuery({
 			queryKey: ["publisher"],
@@ -73,7 +73,7 @@ const UpdateArticle = () => {
 		const form = event.target;
 		let image = article.image;
 		if (form.image.files[0]) {
-			res = await axios.post(
+			const res = await axios.post(
 				imageHostingAPI,
 				{ image: form.image.files[0] },
 				{
@@ -115,7 +115,7 @@ const UpdateArticle = () => {
 		axiosPublic
 			.put(`/articles/${article._id}`, formData)
 			.then((res) => {
-				if (res.data.modifiedCount) {
+				if (res.data.modifiedCount>0) {
 					refetch();
 					Swal.fire({
 						position: "top-end",
@@ -126,7 +126,6 @@ const UpdateArticle = () => {
 					});
 					form.reset();
 				} else if (
-					res.data.matchedCount > 0 &&
 					res.data.modifiedCount == 0
 				) {
 					Swal.fire({

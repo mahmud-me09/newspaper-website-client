@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -25,120 +25,92 @@ const imageHostingAPI = `https://api.imgbb.com/1/upload?key=${imageHostingKey}`;
 const AddArticlesPage = () => {
 	const { user, dbUser } = useAuth();
 	const [selectedTags, setSelectedTags] = useState([]);
-	// const [publisherTags, setPublisherTags] = useState([]);
 	const [selectedPublisher, setSelectedPublisher] = useState("");
 	const axiosPublic = useAxiosPublic();
 
-	// useEffect(() => {
-	// 	axiosPublic
-	// 		.get("/publisher")
-	// 		.then((res) => {
-	// 			const publishersArray = res.data;
-	// 			const publishers = publishersArray.map((publisher) => ({
-	// 				value: publisher.publisher,
-	// 				label: publisher.publisher,
-	// 			}));
-	// 			setPublisherTags(publishers);
-	// 		})
-	// 		.catch((error) => console.log(error));
-	// }, []);
-
-	const {
-		data: publisherTags = [],
-		isLoading,
-		refetch,
-	} = useQuery({
+	const { data: publisherTags = [], isLoading } = useQuery({
 		queryKey: ["publisher"],
 		queryFn: async () => {
 			const res = await axiosPublic.get("/articles");
-			const publishersArray = res.data;
-			const publishertags = publishersArray.map((publisher) => ({
+			return res.data.map((publisher) => ({
 				value: publisher.publisher,
 				label: publisher.publisher,
 			}));
-			return publishertags;
 		},
 	});
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
 		const form = event.target;
+		const formData = new FormData(form);
 
-		const res = await axios.post(
-			imageHostingAPI,
-			{ image: form.image.files[0] },
-			{
-				headers: {
-					"Content-Type": "multipart/form-data",
+		try {
+			const imageRes = await axios.post(imageHostingAPI, formData, {
+				headers: { "Content-Type": "multipart/form-data" },
+			});
+			const image = imageRes.data.data.display_url;
+			const name = form.name.value;
+			const publisher = selectedPublisher.value;
+			const tags = selectedTags.map((tag) => tag.value);
+			const description = form.description.value;
+			const isPremium = false;
+			const viewCount = 0;
+			const isApproved = false;
+			const createdAt = new Date().toISOString();
+			const articleData = {
+				name,
+				image,
+				publisher,
+				tags,
+				description,
+				isPremium,
+				viewCount,
+				isApproved,
+				createdAt,
+				author: {
+					name: user.displayName,
+					photo: user.photoURL,
+					email: user.email,
 				},
-			}
-		);
-		const name = form.name.value;
-		const image = res.data.data.display_url;
-		const publisher = selectedPublisher.value;
-		const tags = selectedTags.map((selectedTag) => selectedTag.value);
-		const description = form.description.value;
-		const isPremium = false;
-		const viewCount = 0;
-		const isApproved = false;
-		const userEmail = user.email;
-		const createdAt = new Date();
-		const formData = {
-			name,
-			image,
-			publisher,
-			tags,
-			createdAt,
-			author: {
-				name: user.displayName,
-				photo: user.photoURL,
-				email: user.email,
-			},
-			description,
-			userEmail,
-			isPremium,
-			viewCount,
-			isApproved,
-		};
-		if (
-			dbUser?.isAdmin ||
-			dbUser?.isPremium ||
-			dbUser?.publishedArticles > 1
-		) {
-			axiosPublic
-				.post("/articles", formData)
-				.then((res) => {
-					// console.log(res);
-					form.reset();
-					if (res.data.insertedId) {
-						Swal.fire({
-							position: "top-end",
-							icon: "success",
-							title: `Article Created Successfully`,
-							showConfirmButton: false,
-							timer: 1500,
-						});
-					}
-				})
-				.catch((error) => console.log(error.message));
+				userEmail: user.email,
+			};
 
-			axiosPublic
-				.patch(`/userpublication/${user.email}`, {
-					$inc: {
-						publishedArticles: 1,
-					},
-				})
-				.then((res) => {
-					console.log(res.data);
-				})
-				.catch((error) => {
-					console.log(error.message);
+			if (
+				dbUser?.isAdmin ||
+				dbUser?.isPremium ||
+				dbUser?.publishedArticles < 1
+			) {
+				const res = await axiosPublic.post("/articles", articleData);
+				if (res.data.insertedId) {
+					Swal.fire({
+						position: "top-end",
+						icon: "success",
+						title: "Article Created Successfully",
+						showConfirmButton: false,
+						timer: 1500,
+					});
+					form.reset();
+					setSelectedTags([]);
+					setSelectedPublisher("");
+					await axiosPublic.patch(`/userpublication/${user.email}`, {
+						$inc: { publishedArticles: 1 },
+					});
+				}
+			} else {
+				Swal.fire({
+					position: "top-end",
+					icon: "error",
+					title: "You have reached your maximum limit for posting articles. Go to the subscription page for posting more articles",
+					showConfirmButton: false,
+					timer: 1500,
 				});
-		} else {
+			}
+		} catch (error) {
+			console.error("Error creating article:", error.message);
 			Swal.fire({
 				position: "top-end",
 				icon: "error",
-				title: `You have reached your maximum limit for posting articles. Go to the subscription page for posting more articles`,
+				title: "An error occurred while creating the article",
 				showConfirmButton: false,
 				timer: 1500,
 			});
@@ -151,7 +123,7 @@ const AddArticlesPage = () => {
 				<title>Morning Tribune | Add Article</title>
 			</Helmet>
 			{isLoading ? (
-				<SKeletonLoader></SKeletonLoader>
+				<SKeletonLoader />
 			) : (
 				<section className="p-6 dark:bg-gray-100 dark:text-gray-900">
 					<form
@@ -163,11 +135,12 @@ const AddArticlesPage = () => {
 								<p className="text-xl">Add Articles Here</p>
 								<p className="text-md">
 									Add articles here. The fields you have to
-									enter is self explainatory. If there is a
-									problem and query feel free to reach admin
-									on <br />
-									Cell: +888484848416 <br /> Email:
-									kdahkdshf@admin.com.
+									enter are self-explanatory. If there is a
+									problem or query, feel free to reach admin
+									at:
+									<br />
+									Cell: +888484848416 <br />
+									Email: kdahkdshf@admin.com.
 								</p>
 							</div>
 							<div className="gap-4 col-span-full lg:col-span-3 border-l border-gray-100 pl-4">
@@ -180,6 +153,7 @@ const AddArticlesPage = () => {
 										type="text"
 										placeholder="Article Name"
 										className="w-full rounded-md p-4 border border-green-300"
+										required
 									/>
 								</div>
 
@@ -192,11 +166,12 @@ const AddArticlesPage = () => {
 											Publisher:
 										</label>
 										<Select
-											defaultValue={selectedPublisher}
+											value={selectedPublisher}
 											onChange={setSelectedPublisher}
 											options={publisherTags}
-											isMulti={false}
+											isSearchable={true}
 											className="w-full p-2.5 rounded-md border border-green-300"
+											required
 										/>
 									</div>
 									<div className="col-span-full sm:col-span-3">
@@ -207,11 +182,12 @@ const AddArticlesPage = () => {
 											Tags:
 										</label>
 										<Select
-											defaultValue={selectedTags}
+											value={selectedTags}
 											onChange={setSelectedTags}
 											options={tags}
-											isMulti={true}
+											isMulti
 											className="w-full p-2.5 rounded-md border border-green-300"
+											required
 										/>
 									</div>
 								</div>
@@ -219,20 +195,20 @@ const AddArticlesPage = () => {
 								<div className="col-span-full">
 									<div className="col-span-full sm:col-span-3">
 										<label
-											htmlFor="Description"
+											htmlFor="description"
 											className="text-sm"
 										>
 											Description:
 										</label>
 										<textarea
 											name="description"
-											type="text"
 											placeholder="Description"
 											className="w-full rounded-md h-40 p-4 border border-green-300"
+											required
 										/>
 									</div>
 								</div>
-								<div className="col-span-full  sm:col-span-3 my-4">
+								<div className="col-span-full sm:col-span-3 my-4">
 									<label htmlFor="image" className="text-sm">
 										Image:
 									</label>
@@ -241,6 +217,7 @@ const AddArticlesPage = () => {
 										type="file"
 										name="image"
 										className="file-input rounded-md file-input-bordered  border-green-300 w-full max-w-xs"
+										required
 									/>
 								</div>
 
@@ -258,12 +235,12 @@ const AddArticlesPage = () => {
 								/>
 								<div className="modal" role="dialog">
 									<div className="modal-box">
-										<h3 className=" text-center font-bold text-lg">
+										<h3 className="text-center font-bold text-lg">
 											Hello {user?.displayName}!
 										</h3>
 										<p className="py-4 text-center">
-											Are You sure You want to Add this
-											Article to your database?
+											Are you sure you want to add this
+											article to your database?
 										</p>
 										<div className="modal-action justify-between">
 											<input
@@ -271,7 +248,6 @@ const AddArticlesPage = () => {
 												type="submit"
 												className="btn btn-error w-1/2"
 											/>
-
 											<label
 												htmlFor={`my_modal_submit`}
 												className="btn btn-success w-1/2"

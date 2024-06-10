@@ -5,7 +5,7 @@ import useAxiosPublic from "./useAxiosPublic";
 const usePremium = () => {
 	const { user, loading } = useAuth();
 	const axiosPublic = useAxiosPublic();
-	const { data: isPremium, isPending: isPremiumLoading } = useQuery({
+	const { data: isPremium, isPending: isPremiumLoading, refetch } = useQuery({
 		queryKey: ["isPremium", user?.email],
 		enabled: !loading,
 		queryFn: async () => {
@@ -14,7 +14,7 @@ const usePremium = () => {
 			return res.data?.isPremium;
 		},
 	});
-	return [isPremium, isPremiumLoading];
+	return [isPremium, isPremiumLoading, refetch];
 };
 
 export default usePremium;

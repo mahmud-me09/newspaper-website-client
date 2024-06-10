@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import useAdmin from "../hooks/useAdmin";
 import DateToday from "../components/DateToday";
@@ -7,10 +7,14 @@ import useAuth from "../hooks/useAuth";
 import usePremium from "../hooks/usePremium";
 
 const Navbar = () => {
-	const { user, handleSignOut } = useAuth();
+	const { user, handleSignOut, dbUser} = useAuth();
 	
 	const [isAdmin, isAdminLoading] = useAdmin();
 	const [isPremium,isPremiumLoading, refetch] = usePremium()
+
+	useEffect(()=>{
+		refetch()
+	},[dbUser?.isPremium])
 
 	const navlinkItems = [
 		{

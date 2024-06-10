@@ -19,7 +19,6 @@ const DetailArticlePage = () => {
 			return res.data;
 		},
 	});
-	console.log(article);
 
 	return (
 		<div className="my-8">

@@ -8,12 +8,12 @@ const AdminRoute = ({ children }) => {
 	const [isAdmin, isAdminLoading] = useAdmin();
 	const location = useLocation();
 
-	if (userLoading || isAdminLoading) {
-		return <progress className="progress w-56"></progress>;
-	}
-
 	if (!user) {
 		return <Navigate to="/login" state={{ from: location }} replace />;
+	}
+
+	if (userLoading || isAdminLoading) {
+		return <progress className="progress w-56"></progress>;
 	}
 
 	if (user && !isAdmin) {

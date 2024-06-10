@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import useAxiosPublic from "../hooks/useAxiosPublic";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import SKeletonLoader from "../components/SKeletonLoader";
+import Swal from "sweetalert2";
 
 const AllUsersPage = () => {
 	const axiosPublic = useAxiosPublic();
@@ -19,17 +20,26 @@ const AllUsersPage = () => {
 	});
 
 	const mutation = useMutation({
-		mutationFn: (id) =>
+		mutationFn: (user) =>
 			axiosPublic
-				.patch(`/users/${id}`, { isAdmin: true })
-				.then((res) => refetch()),
+				.patch(`/users/${user._id}`, { isAdmin: true })
+				.then((res) => {
+					Swal.fire({
+						position: "top-end",
+						icon: "success",
+						title: `${user.name} an admin now`,
+						showConfirmButton: false,
+						timer: 1500,
+					});
+					refetch()
+				}),
 		onSuccess: () => {
 			queryClient.invalidateQueries(["users"]);
 		},
 	});
 
-	const handleMakeAdmin = (id) => {
-		mutation.mutate(id);
+	const handleMakeAdmin = (user) => {
+		mutation.mutate(user);
 	};
 	// pagination
 	const [page, setPage] = useState(1);
@@ -108,7 +118,7 @@ const AllUsersPage = () => {
 													className="btn"
 													onClick={() =>
 														handleMakeAdmin(
-															user._id
+															user
 														)
 													}
 												>

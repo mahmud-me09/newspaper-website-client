@@ -22,20 +22,40 @@ const StatisticsSection = () => {
 	return (
 		<div className="py-8">
 			<SectionTitle h1="Statistics" />
-			<div className="flex justify-around">
-				<div>
-					<h2>Total Users</h2>
-					<CountUp end={stats.totalUsers} />
+			<section className="p-6 bg-gray-100 dark:bg-gray-800">
+				<div className="container mx-auto">
+					<h2 className="text-3xl font-semibold mb-4 text-center">
+						Our Statistics
+					</h2>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+						<div className="bg-white shadow-md p-6 rounded-md">
+							<h3 className="text-xl font-semibold mb-4">
+								Total Users
+							</h3>
+							<p className="text-4xl font-bold text-gray-800">
+								<CountUp end={stats.totalUsers} />
+							</p>
+						</div>
+						<div className="bg-white shadow-md p-6 rounded-md">
+							<h3 className="text-xl font-semibold mb-4">
+								Normal Users
+							</h3>
+							<p className="text-4xl font-bold text-gray-800">
+								<CountUp end={stats.normalUsers}/>
+							</p>
+						</div>
+						<div className="bg-white shadow-md p-6 rounded-md">
+							<h3 className="text-xl font-semibold mb-4">
+								Premium Users
+							</h3>
+							<p className="text-4xl font-bold text-gray-800">
+								<CountUp end={stats.premiumUsers} />
+							</p>
+						</div>
+					</div>
 				</div>
-				<div>
-					<h2>Normal Users</h2>
-					<CountUp end={stats.normalUsers} />
-				</div>
-				<div>
-					<h2>Premium Users</h2>
-					<CountUp end={stats.premiumUsers} />
-				</div>
-			</div>
+			</section>
+			
 		</div>
 	);
 };
