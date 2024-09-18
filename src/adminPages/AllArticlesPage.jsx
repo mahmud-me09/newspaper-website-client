@@ -4,9 +4,11 @@ import SectionTitle from "../components/SectionTitle";
 import Swal from "sweetalert2";
 import { useQuery } from "@tanstack/react-query";
 import SkeletonLoader from "../components/SKeletonLoader";
+import useAxiosSecure, { axiosSecure } from "../hooks/useAxiosSecure";
 
 const AllArticlesPage = () => {
 	const axiosPublic = useAxiosPublic();
+	const axiosSecure = useAxiosSecure()
 
 	const {
 		data: articles = [],
@@ -40,7 +42,7 @@ const AllArticlesPage = () => {
 			})
 			.then((result) => {
 				if (result.isConfirmed) {
-					axiosPublic.delete(`/articles/${id}`).then((res) => {
+					axiosSecure.delete(`/articles/${id}`).then((res) => {
 						if (res.data.deletedCount > 0) {
 							swalWithBootstrapButtons.fire({
 								title: "Deleted!",
@@ -64,7 +66,7 @@ const AllArticlesPage = () => {
 	};
 
 	const handleApproveButton = (id) => {
-		axiosPublic
+		axiosSecure
 			.put(`/articles/${id}`, { isApproved: true })
 			.then((response) => {
 				if (response.data.modifiedCount > 0) {
@@ -74,7 +76,7 @@ const AllArticlesPage = () => {
 			.catch((error) => console.log(error));
 	};
 	const handlePremiumButton = (id) => {
-		axiosPublic
+		axiosSecure
 			.put(`/articles/${id}`, { isPremium: true })
 			.then((response) => {
 				if (response.data.modifiedCount > 0) {

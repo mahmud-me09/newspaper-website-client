@@ -3,7 +3,7 @@ import useAuth from "../../hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import SectionTitle from "../../components/SectionTitle";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SKeletonLoader from "../../components/SKeletonLoader";
 import Swal from "sweetalert2";
 
@@ -66,6 +66,21 @@ const MyArticles = () => {
 			});
 	};
 
+	if (articles.length === 0) {
+		return (
+			<div className="container p-2 mx-auto sm:p-4 dark:text-gray-800">
+				<SectionTitle h1={"No Articles Found"} />
+				<h1 className="my-4">
+					You can Add Articles here{" "}
+					<span>
+						<Link className="btn" to="/addArticle">
+							Add Articles
+						</Link>
+					</span>
+				</h1>
+			</div>
+		);
+	}
 	return (
 		<div className="container p-2 mx-auto sm:p-4 dark:text-gray-800">
 			<SectionTitle h1={"My Articles"} />
@@ -174,7 +189,9 @@ button,delete button */}
 										<button
 											onClick={() =>
 												navigate("/updateArticle", {
-													state: { article: article },
+													state: {
+														article: article,
+													},
 												})
 											}
 											className="btn"

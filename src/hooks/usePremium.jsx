@@ -1,16 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import useAuth from "./useAuth";
-import useAxiosPublic from "./useAxiosPublic";
+// import useAxiosPublic from "./useAxiosPublic";
+import useAxiosSecure from "./useAxiosSecure";
 
 const usePremium = () => {
 	const { user, loading } = useAuth();
-	const axiosPublic = useAxiosPublic();
+	const axiosSecure = useAxiosSecure();
 	const { data: isPremium, isPending: isPremiumLoading, refetch } = useQuery({
 		queryKey: ["isPremium", user?.email],
 		enabled: !loading,
 		queryFn: async () => {
-			const res = await axiosPublic.get(`/users?email=${user.email}`);
-
+			const res = await axiosSecure.get(`/users/${user.email}`);
+			console.log("isPremium: ", res.data?.isPremium);
+			if(res.data?.isAdmin){
+				return true
+			}
 			return res.data?.isPremium;
 		},
 	});

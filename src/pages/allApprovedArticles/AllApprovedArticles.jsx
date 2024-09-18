@@ -2,10 +2,11 @@ import useAxiosPublic from "../../hooks/useAxiosPublic";
 import SectionTitle from "../../components/SectionTitle";
 import { useQuery } from "@tanstack/react-query";
 import SkeletonLoader from "../../components/SKeletonLoader";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import usePremium from "../../hooks/usePremium";
 import { useState } from "react";
+import Markdown from "react-markdown";
 
 const AllApprovedArticles = () => {
 	const axiosPublic = useAxiosPublic();
@@ -48,6 +49,22 @@ const AllApprovedArticles = () => {
 		e.preventDefault();
 		refetch();
 	};
+
+	if (articles.length === 0) {
+		return (
+			<div className="container p-2 mx-auto sm:p-4 dark:text-gray-800">
+				<SectionTitle h1={"No Approved Articles Found"} />
+				<h1 className="my-4">
+					You can Add More Articles here{" "}
+					<span>
+						<Link className="btn" to="/addArticle">
+							Add Articles
+						</Link>
+					</span>
+				</h1>
+			</div>
+		);
+	}
 
 	return (
 		<>
@@ -130,13 +147,13 @@ const AllApprovedArticles = () => {
 										</p>
 									</div>
 
-									<div className="card-actions w-full">
-										<p className="text-justify">
+									<div className="text-justify card-actions w-full">
+										<Markdown>
 											{article.description
 												.split(/[.?!]\s+/)
 												.slice(0, 3)
 												.join(". ") + "."}
-										</p>
+										</Markdown>
 									</div>
 									<div className="card-actions w-full py-2 justify-end">
 										<button

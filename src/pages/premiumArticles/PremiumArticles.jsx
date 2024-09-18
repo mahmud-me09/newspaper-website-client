@@ -3,6 +3,7 @@ import SectionTitle from "../../components/SectionTitle";
 import { useQuery } from "@tanstack/react-query";
 import SkeletonLoader from "../../components/SKeletonLoader";
 import { useNavigate } from "react-router-dom";
+import Markdown from "react-markdown";
 
 const PremiumArticles = () => {
 	const axiosPublic = useAxiosPublic();
@@ -61,13 +62,13 @@ const PremiumArticles = () => {
 										</p>
 									</div>
 
-									<div className="card-actions w-full">
-										<p className="text-justify">
-											{article.description
-												.split(/[.?!]\s+/)
-												.slice(0, 3)
-												.join(". ") + "."}
-										</p>
+									<div className="card-actions w-full text-justify">
+											<Markdown>
+												{article.description
+													.split(/[.?!\n*]\s+/)
+													.slice(0, 3)
+													.join(". ") + "."}
+											</Markdown>
 									</div>
 									<div className="card-actions w-full py-2 justify-end">
 										<button

@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import SKeletonLoader from "../../components/SKeletonLoader";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
+import Markdown from "react-markdown";
 
 const DetailArticlePage = () => {
 	const { id } = useParams();
@@ -50,12 +51,13 @@ const DetailArticlePage = () => {
 							src={article.image}
 							alt=""
 						/>
-						<p className="w-1/2 bg-slate-100 p-2 my-2 rounded-md">
+						<p className="w-full bg-slate-100 p-2 my-2 rounded-md">
 							Photo Credit: Anonymous
 						</p>
 					</div>
 					<div>
-						<p>{article?.description}</p>
+						<Markdown>{article?.description}</Markdown>
+					
 					</div>
 				</>
 			)}

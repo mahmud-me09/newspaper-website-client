@@ -3,9 +3,10 @@ import useAxiosPublic from "../hooks/useAxiosPublic";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import SKeletonLoader from "../components/SKeletonLoader";
 import Swal from "sweetalert2";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const AllUsersPage = () => {
-	const axiosPublic = useAxiosPublic();
+	const axiosSecure = useAxiosSecure();
 
 	const {
 		data: users = [],
@@ -14,14 +15,14 @@ const AllUsersPage = () => {
 	} = useQuery({
 		queryKey: ["users"],
 		queryFn: async () => {
-			const res = await axiosPublic.get("/users");
+			const res = await axiosSecure.get("/users");
 			return res.data;
 		},
 	});
 
 	const mutation = useMutation({
 		mutationFn: (user) =>
-			axiosPublic
+			axiosSecure
 				.patch(`/users/${user._id}`, { isAdmin: true })
 				.then((res) => {
 					Swal.fire({
@@ -31,7 +32,7 @@ const AllUsersPage = () => {
 						showConfirmButton: false,
 						timer: 1500,
 					});
-					refetch()
+					refetch();
 				}),
 		onSuccess: () => {
 			queryClient.invalidateQueries(["users"]);
@@ -58,6 +59,16 @@ const AllUsersPage = () => {
 	const goToNextPage = () => {
 		setPage((prevPage) => Math.min(prevPage + 1, totalPages));
 	};
+
+	if (!users) {
+		return (
+			<div className="container p-2 mx-auto sm:p-4 dark:text-gray-800">
+				<h2 className="mb-4 text-2xl font-semibold leading-tight">
+					No Users Found
+				</h2>
+			</div>
+		);
+	}
 
 	return (
 		<div className="container p-2 mx-auto sm:p-4 dark:text-gray-800">
@@ -117,9 +128,7 @@ const AllUsersPage = () => {
 												<button
 													className="btn"
 													onClick={() =>
-														handleMakeAdmin(
-															user
-														)
+														handleMakeAdmin(user)
 													}
 												>
 													Make Admin

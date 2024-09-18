@@ -9,7 +9,7 @@ import {
 import auth from "../utils/firebase.config";
 import Swal from "sweetalert2";
 import { createContext, useEffect, useState } from "react";
-// import useAxiosSecure from "../hooks/useAxiosSecure";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 import useAxiosPublic from "../hooks/useAxiosPublic";
 import { useQuery } from "@tanstack/react-query";
 
@@ -18,8 +18,8 @@ export const AuthContext = createContext(null);
 const AuthProvider = ({ children }) => {
 	const [isAdmin, setIsAdmin] = useState(false);
 	const [isPremium, setIsPremium] = useState(false);
-	// const axiosSecure = useAxiosSecure();
 	const axiosPublic = useAxiosPublic();
+	const axiosSecure = useAxiosSecure()
 	const [user, setUser] = useState(() => {
 		const savedUser = localStorage.getItem("authUser");
 		return savedUser ? JSON.parse(savedUser) : null;
@@ -44,23 +44,22 @@ const AuthProvider = ({ children }) => {
 
 	const { data: dbUser, refetch } = useQuery({
 		queryKey: ["dbUser"],
-		enabled:!!user,
+		enabled: !!user,
 		queryFn: async () => {
-			try{
-				const response = await axiosPublic.get(`/users?email=${user.email}`);
-			setIsAdmin(response.data.isAdmin);
-			setIsPremium(response.data?.isPremium);
-			return response.data;
-			}
-			catch(error){
+			try {
+				const response = await axiosSecure.get(
+					`/users/${user?.email}`
+				);
+				setIsAdmin(response.data?.isAdmin);
+				setIsPremium(response.data?.isPremium);
+				return response.data;
+			} catch (error) {
 				console.error("Failed to fetch user data", error);
 				setIsAdmin(false);
 				setIsPremium(false);
 			}
-			
 		},
 	});
-
 
 	const handlePremiumStatus = async (currentUser) => {
 		try {
@@ -87,9 +86,8 @@ const AuthProvider = ({ children }) => {
 					}
 				);
 				console.log("User premium status updated to false");
-				
+
 				setIsPremium(false);
-				
 			} else {
 				// If subscription is active
 				const res = await axiosPublic.put(
@@ -106,22 +104,19 @@ const AuthProvider = ({ children }) => {
 		}
 	};
 
-
-
 	useEffect(() => {
 		const interval = setInterval(() => {
 			refetch();
-			if (user && !dbUser.isAdmin) {
+			if (user && !dbUser?.isAdmin) {
 				handlePremiumStatus(dbUser);
-
 			}
 		}, 30000); // Check every minute
 		return () => clearInterval(interval);
 	}, [user, isPremium]);
 
-	useEffect(()=>{
-		refetch()
-	},[isPremium])
+	useEffect(() => {
+		refetch();
+	}, [isPremium]);
 
 	useEffect(() => {
 		const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -132,8 +127,21 @@ const AuthProvider = ({ children }) => {
 				localStorage.setItem("authUser", JSON.stringify(currentUser));
 				setUser(currentUser);
 				setLoading(false);
+				const userInfo = { email: currentUser.email };
+				axiosPublic
+					.post("/jwt", userInfo)
+
+					.then((res) => {
+						if (res.data.token) {
+							localStorage.setItem(
+								"access-token",
+								res.data.token
+							);
+						}
+					});
 			} else {
 				localStorage.removeItem("authUser");
+				localStorage.removeItem("access-token");
 				setUser(null);
 
 				setIsAdmin(false);

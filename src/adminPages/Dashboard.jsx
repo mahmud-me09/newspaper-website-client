@@ -15,7 +15,6 @@ const Dashboard = () => {
 		},
 	});
 
-	console.log(articles);
 
 	const { data: publisherArticles = [], isLoading: articlesLoading } =
 		useQuery({
@@ -70,8 +69,6 @@ const Dashboard = () => {
 
 		return data;
 	};
-
-	console.log("All Articles", articles);
 
 	return (
 		<div className="container mx-auto mt-8">
