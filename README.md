@@ -1,12 +1,14 @@
 Live Link: https://newspaper-website-a12.web.app
+
 Server Code: https://github.com/mahmud-me09/newspaper-website-server.git
+
 Server Running on: https://newspaper-website-server.vercel.app
 
 Name of Website: The Morning Tribune
 Admin: john.doe@admin.com
 Admin Password: asdfGh
 
-Feature of the Website:
+### Feature of the Website:
 1. Admin Previledge is incorporated with attractive dashboard.
 2. Admin can add or remove publisher.
 3. Users can register in the website for submitting articles as author.
@@ -19,7 +21,7 @@ Feature of the Website:
 10. Admin can make any user admin through his dashboard UI.
 
 
-Steps to run this project locally:
+### Steps to run this project locally:
 1. clone this project
 2. create an .env file:
 
