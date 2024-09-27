@@ -35,3 +35,4 @@ VITE_Publishable_Key=Publishable key for imgbb
 
 3. configure tailwind and daisyui in your project
 4. run "npm install"
+5. run "npm run dev"
